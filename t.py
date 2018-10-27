@@ -2,17 +2,16 @@ import datetime
 from donfig import PyConfig, Field
 import configparser
 
+
 class BaseConfig_(PyConfig):
 
     A = Field(('Output', 'a'), default='foo')
     B = Field(('Output', 'b'), default='bar')
     
     start = Field(('Input', 'start-time'), default=datetime.time(7))
-    
     @start.postget
     def f(B):        
         return datetime.time(int(B))
-        
     @start.preset
     def f(time):
         return time.hour
