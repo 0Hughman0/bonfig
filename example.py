@@ -1,42 +1,40 @@
 import datetime
-from donfig import PyConfig, Field
-import configparser
+from donfig import PyConfig, PySection, BaseConfig, Field, PyField, pyfields
 
 
-class BaseConfig_(PyConfig):
+@pyfields.add
+class TimePyField(PyField):
 
-    A = Field(('Output', 'a'), default='foo')
-    B = Field(('Output', 'b'), default='bar')
-    
-    start = Field(('Input', 'start-time'), default=datetime.time(7))
-    @start.postget
-    def f(B):        
-        return datetime.time(int(B))
-    @start.preset
-    def f(time):
-        return time.hour
+    def post_get(self, val):
+        return datetime.time(int(val))
+
+    def pre_set(self, val):
+        return str(val.hour)
 
 
-class Config(BaseConfig_):
+class PyBaseConfig(PyConfig):
 
-    end = Field(('Input', 'end-time'), default=datetime.time(8))
-        
+    output = PySection('Output')
+
+    A = output.PyField('a', default='foo')
+    B = output.PyField('b', default='bar')
+    C = output.PyIntField('c', default=6543)
+
+    input = PySection('Input')
+    start = input.TimePyField('start-time', default=datetime.time(7))
+
+
+class Config(PyBaseConfig):
+
+    end = PyBaseConfig.input.TimePyField('end-time', default=datetime.time(8))
+
+
 c = Config()
-"""
->>> c.A
-''
->>> c.end
-datetime.time(8, 0)
->>> c.d
-{'Input': {'end-time': datetime.time(8, 0), 'start-time': 7}, 'Output': {'a': '', 'b': ''}}
->>> c.end = datetime.time(3)
->>> c.d
-{'Input': {'end-time': datetime.time(3, 0), 'start-time': 7}, 'Output': {'a': '', 'b': ''}}
->>> c.write('t.ini')
->>> p = configparser()
->>> p.read_file(open('t.ini'))
->>> p.sections()
-['Output', 'Input']
->>> c.to_configparser() == p
-True
-"""
+c.input.fields
+
+
+class OtherConfig(BaseConfig):
+
+    level1 = Field('Title')
+
+c2 = OtherConfig()
