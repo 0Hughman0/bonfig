@@ -81,4 +81,5 @@ If you don't want to use a config parser to store your data, the `Donfig` class 
 makes more hierarchical structures possible. (The 'Py' prefix has been used to indicate using `configparser` internally,
 and as such is a specialisation of the `Donfig` class)
 
-Check out the docstrings for more info.
+Check out the docstrings and examples folder for more info.
+
