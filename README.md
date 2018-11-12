@@ -1,5 +1,9 @@
 # Bonfig
 
+## Installation
+
+    pip install bonfig
+
 Bonfig aims to provide a more beautiful way to create and use configurations.
 
 The two core ideas are:
