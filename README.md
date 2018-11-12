@@ -1,17 +1,17 @@
-# Donfig
+# Bonfig
 
-Donfig aims to provide a more beautiful way to create and use configurations.
+Bonfig aims to provide a more beautiful way to create and use configurations.
 
 The two core ideas are:
 
     1. Enable the creation of configurations using a class declaration.
     2. Things are less stressful when the underlying data in a configuration is kept serialisable
 
-Donfig works with `configparser` to make creating configs fun:
+Bonfig works with `configparser` to make creating configs fun:
 
-    from donfig import PyDonfig
+    from bonfig import PyBonfig
 
-    class MyConfig(PyDonfig):
+    class MyConfig(PyBonfig):
 
         output = PySection('Output')
         A = output.PyField('a', default='foo')
@@ -24,7 +24,7 @@ Donfig works with `configparser` to make creating configs fun:
     c.C = 325
     print(c.C) # -> 325
 
-Hidden inside the `PyDonfig` instance is a `ConfigParser` object storing all the info, which is easily accessible, with
+Hidden inside the `PyBonfig` instance is a `ConfigParser` object storing all the info, which is easily accessible, with
 `d`.
 
     >>> c.d
@@ -48,7 +48,7 @@ hooks:
         def pre_set(self, val):
             return str(val.hour)
 
-    class MyConfig(PyDonfig):
+    class MyConfig(PyBonfig):
 
         output = PySection('Output')
         A = output.PyField('a', default='foo')
@@ -58,11 +58,11 @@ hooks:
     print(c.T) # -> datetime.time(21, 0)
 
 Some shortcuts to creating your own field classes are provided, check out `fields.make_quick` and `pyfields.make_quick`
-in `donfig.py`!
+in `bonfig.py`!
 
-Pleasingly, Donfig plays nicely with inheritance so you can do cool stuff like:
+Pleasingly, Bonfig plays nicely with inheritance so you can do cool stuff like:
 
-    class MyBaseConfig(PyDonfig):
+    class MyBaseConfig(PyBonfig):
 
         basic = PySection('Basic')
         A = basic.PyField('a', default='loopy')
@@ -77,9 +77,9 @@ Pleasingly, Donfig plays nicely with inheritance so you can do cool stuff like:
              ('Basic', OrderedDict([('a', 'loopy')]))])
 
 
-If you don't want to use a config parser to store your data, the `Donfig` class just uses a plain ol' dictionary, which
+If you don't want to use a config parser to store your data, the `Bonfig` class just uses a plain ol' dictionary, which
 makes more hierarchical structures possible. (The 'Py' prefix has been used to indicate using `configparser` internally,
-and as such is a specialisation of the `Donfig` class)
+and as such is a specialisation of the `Bonfig` class)
 
 Check out the docstrings and examples folder for more info.
 

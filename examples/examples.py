@@ -1,9 +1,9 @@
 import datetime
-from donfig import (PyDonfig, PySection, PyField, pyfields,
-                    Donfig, Section, Field, fields)
+from bonfig import (PyBonfig, PySection, PyField, pyfields,
+                    Bonfig, Section, Field, fields)
 
 
-# Using PyDonfig and PyFields/ PySections
+# Using PyBonfig and PyFields/ PySections
 
 ## Creating a custom PyField
 @pyfields.add
@@ -16,7 +16,7 @@ class TimePyField(PyField):
         return str(val.hour)
 
 
-class PyBaseConfig(PyDonfig):
+class PyBaseConfig(PyBonfig):
 
     output = PySection('Output')
     A = output.PyField('a', default='foo')
@@ -64,7 +64,7 @@ class TimeField(Field):
         return str(val.hour)
 
 
-class BaseConfig(Donfig):
+class BaseConfig(Bonfig):
 
     output = Section('Output')
     A = output.Field('a', default='foo')
@@ -77,7 +77,7 @@ class BaseConfig(Donfig):
     # or without using a PySection object:
     separate = Field(('Out on a limb', 'lonely'), default='hmmm')
 
-    # More levels possible when using regular Donfig:
+    # More levels possible when using regular Bonfig:
     multi = Field(('one', 'two', 'three', 'four'), default='FOUR LEVELS IN!')
 
 
@@ -93,7 +93,7 @@ print("\n2\n", c.d, "\n")
 
 # Making a nice chill config:
 
-class ChillConfig(Donfig):
+class ChillConfig(Bonfig):
 
     A = Field('a')
     B = Field('b')

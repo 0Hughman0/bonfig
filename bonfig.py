@@ -1,7 +1,7 @@
 """
 (c) Hugh Ramsden 2018
 
-Donfig
+Bonfig
 ------
 An alternative, more beautiful way to build configs!
 
@@ -33,7 +33,7 @@ class FieldDict(dict):
 
         Example
         -------
-        >>> from donfig import pyfields
+        >>> from bonfig import pyfields
         >>> @pyfields.add
         >>> class TimeField(Field):
         >>>     def post_get(self, val):
@@ -63,9 +63,9 @@ class FieldDict(dict):
         name : str
             Name of new field class
         post_get : func
-            Function to apply to values just after they are fetched from the `Donfig` `data_attr` (usually `d`)
+            Function to apply to values just after they are fetched from the `Bonfig` `data_attr` (usually `d`)
         pre_set : func
-            Function to apply to values just before they are inserted into the `Donfig` `data_attr` (usually `d`)
+            Function to apply to values just before they are inserted into the `Bonfig` `data_attr` (usually `d`)
         bases : cls
             Class for the newly created class to subclass (defaults to `Field`).
 
@@ -96,9 +96,9 @@ fields = FieldDict()
 pyfields = FieldDict()
 
 
-class Donfig:
+class Bonfig:
     """
-    Base class for all Donfigs!
+    Base class for all Bonfigs!
 
     Attributes
     ----------
@@ -107,7 +107,7 @@ class Donfig:
 
     Note
     ----
-    If subclassing Donfig and overwriting `__init__` ensure you call `super().__init__()` or the the `data_attr` won't
+    If subclassing Bonfig and overwriting `__init__` ensure you call `super().__init__()` or the the `data_attr` won't
     initialise properly!
     """
     
@@ -151,9 +151,9 @@ class Donfig:
             field.__set__(self, field.default)
 
 
-class PyDonfig(Donfig):
+class PyBonfig(Bonfig):
     """
-    Subclass of `Donfig` which utilizes a `configparser.ConfigParser` as the data_attr
+    Subclass of `Bonfig` which utilizes a `configparser.ConfigParser` as the data_attr
     """
 
     @staticmethod
@@ -215,7 +215,7 @@ class Field:
     --------
     Using a str as path:
 
-    >>> class MyConfig(Donfig):
+    >>> class MyConfig(Bonfig):
     >>>     A = Field('a', default='aye')
     >>> c = MyConfig()
     >>> c.A
@@ -224,7 +224,7 @@ class Field:
     {'a': 'aye'}
 
     Using a list/ tuple gives a more hierarchical structure:
-    >>> class MyConfig(Donfig):
+    >>> class MyConfig(Bonfig):
     >>>     A = Field(('Alpha', 'a'), default='aye')
     >>>     B = Field(('Alpha', 'b'), default='bee')
     >>> c = MyConfig()
@@ -281,7 +281,7 @@ BoolField = fields.make_quick('BoolField', bool, str)
 
 class Section:
     """
-    Convenience class for building up `PyDonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
+    Convenience class for building up `PyBonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
 
     Parameters
     ----------
@@ -292,7 +292,7 @@ class Section:
     --------
     PySections make building up these configs a bit nicer:
 
-    >>> class MyConfig(Donfig):
+    >>> class MyConfig(Bonfig):
     >>>     output = Section('Output')
     >>>     A = output.Field('a', default='foo')
     >>>     B = output.Field('b', default='bar')
@@ -364,7 +364,7 @@ class SectionProxy:
 @pyfields.add
 class PyField(Field):
     """
-    Subclass of field, specifically for use with `PyDonfig` - i.e. for use with `configparser.ConfigParser` as the
+    Subclass of field, specifically for use with `PyBonfig` - i.e. for use with `configparser.ConfigParser` as the
     `data_attr`.
 
     Parameters
@@ -408,7 +408,7 @@ PyBoolField = pyfields.make_quick('PyBoolField', bool, str, bases=PyField)
 
 class PySection(Section):
     """
-    Convenience class for building up `PyDonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
+    Convenience class for building up `PyBonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
 
     Parameters
     ----------
@@ -419,7 +419,7 @@ class PySection(Section):
     --------
     PySections make building up these configs a bit nicer:
 
-    >>> class MyConfig(PyDonfig):
+    >>> class MyConfig(PyBonfig):
     >>>     output = PySection('Output')
     >>>     A = output.PyField('a', default='foo')
     >>>     B = output.PyField('b', default='bar')
