@@ -54,4 +54,4 @@ Temporary Items
 
 # Pyc
 *.pyc
-__pycache__
+__pycache__*
