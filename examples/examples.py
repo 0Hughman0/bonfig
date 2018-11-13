@@ -1,4 +1,8 @@
 import datetime
+import sys
+from pathlib import Path
+sys.path.append(Path().parent)
+
 from bonfig import (PyBonfig, PySection, PyField, pyfields,
                     Bonfig, Section, Field, fields,
                     EnvField)
@@ -114,3 +118,16 @@ print(c.d)
 print(c.env)
 print(c.benv)
 
+
+class ChillestConfig(Bonfig):
+
+    A = Field()
+    B = Field()
+
+    sec = Section("Sec")
+    C = sec.Field()
+
+
+c = ChillestConfig()
+print(c.A)
+print(c.d)

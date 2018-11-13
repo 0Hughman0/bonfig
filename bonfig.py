@@ -19,8 +19,14 @@ import configparser
 import itertools
 import functools
 import os
+import sys
+import operator
 
-__version__ = "0.1"
+__version__ = "0.2"
+
+
+def _check_version(major, minor=0, micro=0, comp='ge'):
+    return all([getattr(operator, comp)(v, v_req) for v_req, v in zip((major, minor, micro), sys.version_info)])
 
 
 class FieldDict(dict):
@@ -156,41 +162,52 @@ class Bonfig:
 class PyBonfig(Bonfig):
     """
     Subclass of `Bonfig` which utilizes a `configparser.ConfigParser` as the data_attr
+
+    Parameters
+    ----------
+    filenames : str, path, bytes
+        file to load values from on initialisation. Defaults to None, in which case, no loading takes place...
+        obviously?
     """
+
+    def __init__(self, filenames=None):
+        super().__init__()
+        if filenames:
+            self.read(filenames)
 
     @staticmethod
     def make_data_attr():
         return configparser.ConfigParser()
         
-    def write(self, name, *args, **kwargs):
+    def write(self, f, *args, **kwargs):
         """
         Write config to file using `ConfigPaser.write`
+
+        Parameters
+        ----------
+        f : file-like
+            file-like object to write to
+        *args
+            additional parameters to pass to `write`
+        **kwargs
+            additional parameters to pass to `write`
+        """
+        self.d.write(f, *args, **kwargs)
+
+    def read(self, filenames, *args, **kwargs):
+        """
+        Read config from file using `ConfigPaser.read`
 
         Parameters
         ----------
         name : str
             name of file to write to
         *args
-            additional parameters to pass to `write`
-        **kwargs
-            additional parameters to pass to `write`
-        """
-        self.d.write(name, *args, **kwargs)
-
-    def read(self, f, *args, **kwargs):
-        """
-        Read config from file using `ConfigPaser.read`
-
-        Parameters
-        ----------
-        f : file-like
-            file-like object to read from
-        *args
             additional parameters to pass to `read`
         **kwargs
             additional parameters to pass to `read`
         """
-        self.d.read(f)
+        self.d.read(filenames)
 
 
 def _dict_path_get(d, path):
@@ -242,12 +259,20 @@ class Field:
     want it to be set to '' (the default).
     """
 
-    def __init__(self, path, default=''):
-        if not isinstance(path, (list, tuple)):
+    def __init__(self, path=None, default=''):
+        if not isinstance(path, (list, tuple)) or path is None:
             path = [path]
-
         self.path = list(path)
+
+        if self.name is None:
+            if _check_version(3, 6, comp='lt'):
+                raise TypeError("name can only be left blank for Python >= 3.6")
+
         self.default = default
+
+    def __set_name__(self, owner, name):
+        if self.name is None:
+            self.path[-1] = name
 
     @property
     def name(self):
@@ -324,29 +349,21 @@ class Section:
     field_types = fields
 
     def __init__(self, path):
-        if not isinstance(path, (list, tuple)):
+        if not isinstance(path, (list, tuple)) or path is None:
             path = [path]
-
         self.path = list(path)
-        self._fields = {}
 
     @property
     def name(self):
-        return self.path[0]
-
-    @property
-    def fields(self):
-        return self._fields
+        return self.path[-1]
 
     def wrap_field(self, cls):
         """
         fill in section parameter as self for any class!
         """
         @functools.wraps(cls)
-        def wrapped_py_field(name, default='', **kwargs):
-            o = cls([*self.path, name], default, **kwargs)
-            self.fields[name] = o
-            return o
+        def wrapped_py_field(name=None, default='', **kwargs):
+            return cls([*self.path, name], default, **kwargs)
 
         return wrapped_py_field
 
@@ -359,19 +376,18 @@ class Section:
     def __get__(self, instance, owner):
         if instance is None:
             return self
-        return SectionProxy(self.path, self.fields, instance)
+        return SectionProxy(self.path, instance)
 
 
 class SectionProxy:
 
-    def __init__(self, path, fields, parent):
+    def __init__(self, path, parent):
         self.path = path
-        self.fields = fields
         self.parent = parent
 
     @property
     def name(self):
-        return self.path[0]
+        return self.parent.name
 
     @property
     def d(self):
@@ -381,7 +397,7 @@ class SectionProxy:
         return self.d[key]
 
     def __repr__(self):
-        return "<Section {}: {}>".format(self.path, str(self.fields))
+        return "<Section {}: {}>".format(self.path, str(self.d))
 
 
 @pyfields.add
@@ -411,12 +427,11 @@ class PyField(Field):
     want it to be set to '' (the default).
     """
 
-    def __init__(self, name, section, default=''):
+    def __init__(self, section, name=None, default=''):
         if isinstance(section, PySection):
-            path = (section.name, name)
-            section.fields[name] = self
+            path = [section.name, name]
         else:
-            path = (section, name)
+            path = [section, name]
         super().__init__(path, default)
 
         self.section = section
@@ -474,8 +489,8 @@ class PySection(Section):
         """
 
         @functools.wraps(cls)
-        def wrapped_py_field(name, default='', **kwargs):
-            return cls(name, self, default, **kwargs)
+        def wrapped_py_field(name=None, default='', **kwargs):
+            return cls(self, name, default, **kwargs)
 
         return wrapped_py_field
 
@@ -499,8 +514,8 @@ class EnvField(Field):
     value won't be written to disk.
     """
 
-    def __init__(self, name, default=''):
-        if not isinstance(name, str):
+    def __init__(self, name=None, default=''):
+        if not isinstance(name, str) and name is not None:
             raise TypeError("Environment variable name must be a string!")
 
         super().__init__(name, None)
