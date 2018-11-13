@@ -1,6 +1,7 @@
 import datetime
 from bonfig import (PyBonfig, PySection, PyField, pyfields,
-                    Bonfig, Section, Field, fields)
+                    Bonfig, Section, Field, fields,
+                    EnvField)
 
 
 # Using PyBonfig and PyFields/ PySections
@@ -99,13 +100,17 @@ class ChillConfig(Bonfig):
     B = Field('b')
     C = Field('c')
 
+    env = EnvField('TEST', default='fallback')
+    benv = EnvField('_TEST', default='fallback')
+
 
 c = ChillConfig()
 print("\n\n3")
 print(c.d)
-print(c.A)
+# print(c.A)
 c.A = 'Cats!'
-print(c.A)
+# print(c.A)
 print(c.d)
-
+print(c.env)
+print(c.benv)
 

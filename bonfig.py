@@ -18,6 +18,7 @@ pyfields: FieldDict
 import configparser
 import itertools
 import functools
+import os
 
 __version__ = "0.1"
 
@@ -148,7 +149,8 @@ class Bonfig:
                 except KeyError:
                     dd[key] = {}
                     dd = dd[key]
-            field.__set__(self, field.default)
+            if field.default is not None:
+                field.__set__(self, field.default)
 
 
 class PyBonfig(Bonfig):
@@ -232,6 +234,12 @@ class Field:
     {'Alpha': {'a': 'aye', 'b': 'bee'}}
     >>> c.A
     'aye'
+
+    Note
+    ----
+    Setting default to None will result in no values being entered in the data attr upon initialisation, which might
+    make the structure of the data attr look a bit weird until you fill it up with stuff. As such most of the time you
+    want it to be set to '' (the default).
     """
 
     def __init__(self, path, default=''):
@@ -260,15 +268,22 @@ class Field:
         """
         return val
 
+    def _get_value(self, d, path):
+        """
+        Hook to allow you to control how the value is looked up in the underlying data structure - or not looked up
+        (See EnvField!)
+        """
+        return _dict_path_get(d, path)
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
         d = getattr(instance, instance.__class__.data_attr)
-        return self.post_get(_dict_path_get(d, self.path))
+        return self.post_get(self._get_value(d, self.path))
 
     def __set__(self, instance, value):
         d = getattr(instance, instance.__class__.data_attr)
-        _dict_path_get(d, self.path[:-1])[self.name] = self.pre_set(value)
+        self._get_value(d, self.path[:-1])[self.name] = self.pre_set(value)
 
     def __repr__(self):
         return "<{}: {}>".format(self.__class__.__name__, self.path)
@@ -316,6 +331,10 @@ class Section:
         self._fields = {}
 
     @property
+    def name(self):
+        return self.path[0]
+
+    @property
     def fields(self):
         return self._fields
 
@@ -351,6 +370,10 @@ class SectionProxy:
         self.parent = parent
 
     @property
+    def name(self):
+        return self.path[0]
+
+    @property
     def d(self):
         return _dict_path_get(getattr(self.parent, self.parent.data_attr), self.path)
 
@@ -376,12 +399,16 @@ class PyField(Field):
     default : obj
         value to default to!
 
-    Note
-    ----
+    Notes
+    -----
     Differs slightly from normal `Field` in that rather that taking the more general `path`, you have to provide a
     name and a section, in order to work with `ConfigParser`
 
     Rather than putting in the same section each time, you can make a `PySection` object...
+
+    Setting default to None will result in no values being entered in the data attr upon initialisation, which might
+    make the structure of the data attr look a bit weird until you fill it up with stuff. As such most of the time you
+    want it to be set to '' (the default).
     """
 
     def __init__(self, name, section, default=''):
@@ -436,15 +463,10 @@ class PySection(Section):
     field_types = pyfields
 
     def __init__(self, name):
-        if isinstance(name, (tuple, list)):
+        if not isinstance(name, str):
             raise TypeError("PySections have to be at the top level for ConfigParser configurations, so name has to be"
                             "as string")
-        self.path = [name]
-        self._fields = {}
-
-    @property
-    def name(self):
-        return self.path[0]
+        super().__init__(name)
 
     def wrap_field(self, cls):
         """
@@ -456,3 +478,36 @@ class PySection(Section):
             return cls(name, self, default, **kwargs)
 
         return wrapped_py_field
+
+
+class EnvField(Field):
+    """
+    A config Field where it's value is looked up in your environment variables.
+
+    Parameters
+    ----------
+    name : str
+        name of environment variable to look up
+    default : str
+        fallback value if not found
+
+    Notes
+    -----
+    Environment variables can also be set with this Field type.
+
+    As the value is looked up every time, and is not stored in the data attr, for example when using PyBonfig, it's
+    value won't be written to disk.
+    """
+
+    def __init__(self, name, default=''):
+        if not isinstance(name, str):
+            raise TypeError("Environment variable name must be a string!")
+
+        super().__init__(name, None)
+
+        self.env_default = default
+
+    def _get_value(self, d, path):
+        if not path:
+            return os.environ
+        return os.environ.get(self.name, default=self.env_default)
