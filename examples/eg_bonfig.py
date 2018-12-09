@@ -54,8 +54,8 @@ Writing a custom Field
 @fields.add  # this line adds ListField to a dictionary that `Section` looks in when you do Section.ListField
 class ListField(Field):
 
-    def __init__(self, path, default=None, sep=', '):
-        super().__init__(path, default)
+    def __init__(self, path, val=None, sep=', '):
+        super().__init__(path, val)
         self.sep = sep
 
     def post_get(self, val):
@@ -68,7 +68,7 @@ class ListField(Field):
 class CustomConfig(BasicConfig):
     lists = Section('lists')
     even = lists.ListField('even')
-    odd = lists.ListField(default=['1', '3', '5', '7', '9'])
+    odd = lists.ListField(val=['1', '3', '5', '7', '9'])
 
 
 """

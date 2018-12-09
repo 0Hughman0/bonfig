@@ -139,74 +139,6 @@ fields = FieldDict()
 INIfields = FieldDict()
 
 
-class Bonfig:
-    """
-    Base class for all Bonfigs!
-
-    Attributes
-    ----------
-    _data_attr : str
-        name of object to store config data in, defaults to 'd'
-    data attr (usually 'd') : obj
-        Object used to store underlying data of `Bonfig`, (as the name of this attribute depends on _data_attr, this is
-        refered to by data attr throughout documentation).
-
-    Note
-    ----
-    If subclassing Bonfig and overwriting `__init__` ensure you call `super().__init__()` or the the data attr won't
-    initialise properly!
-    """
-    
-    def __init__(self, locked=False):
-        self._locked = False
-
-        cls = self.__class__
-
-        fields = [attr for attr in 
-                  itertools.chain(*(kls.__dict__.values() for kls in (cls, *cls.__bases__)))
-                  if isinstance(attr, BaseField)] # Allow inheritance!
-
-        by_data_attr = collections.defaultdict(list)
-
-        for field in fields:
-            by_data_attr[field._data_attr].append(field)
-
-        # Intialise internal dict structure!
-        for data_attr, fields in by_data_attr.items():
-            if data_attr is None:
-                continue
-
-            d = fields[0].make_data_attr()
-            setattr(self, data_attr, d)
-
-            for field in fields:
-                field.create(self)
-
-        self._locked = locked
-
-    @property
-    def locked(self):
-        return self._locked
-
-    def lock(self):
-        self._locked = True
-
-    def unlock(self):
-        self._locked = False
-
-    def __enter__(self):
-        self.unlock()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.lock()
-
-
-def _dict_path_get(d, path):
-    d = d
-    for k in path:
-        d = d[k]
-    return d
-
 
 class BaseField:
     """
@@ -299,7 +231,80 @@ class BaseField:
         self._set_value(d, self.pre_set(value))
 
     def __repr__(self):
-        return "<{}: {}>".format(self.__class__.__name__, self.path)
+        return "<{}: {}>".format(self.__class__.__name__, self._data_attr)
+
+
+class BonfigType(type):
+
+    def __new__(mcs, name, bases, attrs, **kwargs):
+
+        fields = collections.defaultdict(list)
+
+        for attr in attrs.values():
+            if isinstance(attr, BaseField):
+                fields[attr._data_attr].append(attr)
+
+        # Allow for inheritance
+        for attr in itertools.chain(*(base.__dict__.values() for base in bases)):
+            if isinstance(attr, BaseField):
+                fields[attr._data_attr].append(attr)
+
+        attrs['fields'] = fields
+
+        return super().__new__(mcs, name, bases, attrs, **kwargs)
+
+
+class Bonfig(metaclass=BonfigType):
+    """
+    Base class for all Bonfigs!
+
+    Attributes
+    ----------
+    _data_attr : str
+        name of object to store config data in, defaults to 'd'
+    data attr (usually 'd') : obj
+        Object used to store underlying data of `Bonfig`, (as the name of this attribute depends on _data_attr, this is
+        refered to by data attr throughout documentation).
+
+    Note
+    ----
+    If subclassing Bonfig and overwriting `__init__` ensure you call `super().__init__()` or the the data attr won't
+    initialise properly!
+    """
+    
+    def __init__(self, locked=False):
+        self._locked = False
+
+        for data_attr, field_list in self.fields.items():
+            setattr(self, data_attr, field_list[0].make_data_attr())
+
+            for field in field_list:
+                field.create(self)
+
+        self._locked = locked
+
+    @property
+    def locked(self):
+        return self._locked
+
+    def lock(self):
+        self._locked = True
+
+    def unlock(self):
+        self._locked = False
+
+    def __enter__(self):
+        self.unlock()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.lock()
+
+
+def _dict_path_get(d, path):
+    d = d
+    for k in path:
+        d = d[k]
+    return d
 
 
 @fields.add
@@ -381,7 +386,7 @@ class Field(BaseField):
                 d[key] = {}
                 d = d[key]
         instance.d = dd
-        self.__set__(instance, self.val)
+        self._set_value(getattr(instance, self._data_attr), self.val)
 
     def _get_value(self, d):
         """
@@ -633,7 +638,7 @@ class EnvField(BaseField):
 
     def create(self, instance):
         if not self.dynamic:
-            self._cache = os.environ.get(self.name, self.default)
+            self._cache = instance.environ.get(self.name, self.default)
 
     def _get_value(self, d):
         if not self.dynamic:
