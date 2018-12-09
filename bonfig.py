@@ -10,23 +10,63 @@ Attributes
 fields : FieldDict
     A dict like object that stores all of the field classes. This dict is used to provide sections with access to field
     classes, as such, add to this global dict to make custom fields available in that context.
-pyfields: FieldDict
-    A dict like object that stores all of the pyfield classes. This dict is used to provide sections with access to
+INIfields: FieldDict
+    A dict like object that stores all of the cfield classes. This dict is used to provide sections with access to
     field classes, as such, add to this global dict to make custom fields available in that context.
+    
+# Todo:
+* make the data attr be set by the Field, rather than the Bonfig class, that way, we can store different types of data 
+in the same objects, in different places, and access them seemlessly! e.g. PyField and Field in same obj, with one 
+looking into a `ConfigParser` attr, and one into a `dict` attr! - I really like that 😍
 """
 
 import configparser
 import itertools
-import functools
 import os
 import sys
 import operator
+import collections
 
-__version__ = "0.2"
+from abc import abstractmethod
+
+__version__ = "2.0"
 
 
-def _check_version(major, minor=0, micro=0, comp='ge'):
+def check_version(major, minor=0, micro=0, comp='ge'):
     return all([getattr(operator, comp)(v, v_req) for v_req, v in zip((major, minor, micro), sys.version_info)])
+
+
+def make_sub_field(name, post_get, pre_set, bases=None):
+    """
+    Factory function for producing `Field`-like classes.
+
+    Parameters
+    ----------
+    name : str
+        Name of new field class
+    post_get : func
+        Function to apply to values just after they are fetched from the `Bonfig` data attr (usually `d`)
+    pre_set : func
+        Function to apply to values just before they are inserted into the `Bonfig` data attr (usually `d`)
+    bases : cls
+        Class for the newly created class to subclass (defaults to `Field`).
+
+    Returns
+    -------
+    cls : cls
+        New Field subclass.
+
+    Example
+    -------
+    >>> IntField = make_sub_field('IntField', int, str)
+    """
+
+    if bases is None:
+        bases = Field
+    cls = type(name, (bases,), {})
+    cls.post_get = lambda s, v: post_get(v)
+    cls.pre_set = lambda s, v: pre_set(v)
+    return cls
 
 
 class FieldDict(dict):
@@ -40,8 +80,8 @@ class FieldDict(dict):
 
         Example
         -------
-        >>> from bonfig import pyfields
-        >>> @pyfields.add
+        >>> from bonfig import INIfields
+        >>> @INIfields.add
         >>> class TimeField(Field):
         >>>     def post_get(self, val):
         >>>         return datetime.time(int(val))
@@ -70,9 +110,9 @@ class FieldDict(dict):
         name : str
             Name of new field class
         post_get : func
-            Function to apply to values just after they are fetched from the `Bonfig` `data_attr` (usually `d`)
+            Function to apply to values just after they are fetched from the `Bonfig` data attr (usually `d`)
         pre_set : func
-            Function to apply to values just before they are inserted into the `Bonfig` `data_attr` (usually `d`)
+            Function to apply to values just before they are inserted into the `Bonfig` data attr (usually `d`)
         bases : cls
             Class for the newly created class to subclass (defaults to `Field`).
 
@@ -89,18 +129,14 @@ class FieldDict(dict):
         -------
         >>> IntField = fields.make_quick('IntField', int, str)
         """
-        if bases is None:
-            bases = Field
-        cls = type(name, (bases,), {})
-        cls.post_get = lambda s, v: post_get(v)
-        cls.pre_set = lambda s, v: pre_set(v)
+        cls = make_sub_field(name, post_get, pre_set, bases)
         self.add(cls)
         return cls
 
 
 # Globals 😱
 fields = FieldDict()
-pyfields = FieldDict()
+INIfields = FieldDict()
 
 
 class Bonfig:
@@ -109,105 +145,60 @@ class Bonfig:
 
     Attributes
     ----------
-    data_attr : str
-        name of class to store config data in, defaults to 'd'
+    _data_attr : str
+        name of object to store config data in, defaults to 'd'
+    data attr (usually 'd') : obj
+        Object used to store underlying data of `Bonfig`, (as the name of this attribute depends on _data_attr, this is
+        refered to by data attr throughout documentation).
 
     Note
     ----
-    If subclassing Bonfig and overwriting `__init__` ensure you call `super().__init__()` or the the `data_attr` won't
+    If subclassing Bonfig and overwriting `__init__` ensure you call `super().__init__()` or the the data attr won't
     initialise properly!
     """
     
-    data_attr = 'd'
+    def __init__(self, locked=False):
+        self._locked = False
 
-    @staticmethod
-    def make_data_attr():
-        """
-        Hook to allow using a different type for `data_attr`.
-
-        Returns
-        -------
-        mapping : obj
-            some dict-like class.
-
-        Note
-        ----
-        To change the data attribute, overwrite this method
-        """
-        return {}
-    
-    def __init__(self):
         cls = self.__class__
 
         fields = [attr for attr in 
                   itertools.chain(*(kls.__dict__.values() for kls in (cls, *cls.__bases__)))
-                  if isinstance(attr, Field)] # Allow inheritance!
-            
-        d = cls.make_data_attr()
-        setattr(self, cls.data_attr, d)
-        
-        # Intialise internal dict structure!
+                  if isinstance(attr, BaseField)] # Allow inheritance!
+
+        by_data_attr = collections.defaultdict(list)
+
         for field in fields:
-            dd = d
-            for key in field.path[:-1]:
-                try:
-                    dd = dd[key]
-                except KeyError:
-                    dd[key] = {}
-                    dd = dd[key]
-            if field.default is not None:
-                field.__set__(self, field.default)
+            by_data_attr[field._data_attr].append(field)
 
+        # Intialise internal dict structure!
+        for data_attr, fields in by_data_attr.items():
+            if data_attr is None:
+                continue
 
-class PyBonfig(Bonfig):
-    """
-    Subclass of `Bonfig` which utilizes a `configparser.ConfigParser` as the data_attr
+            d = fields[0].make_data_attr()
+            setattr(self, data_attr, d)
 
-    Parameters
-    ----------
-    filenames : str, path, bytes
-        file to load values from on initialisation. Defaults to None, in which case, no loading takes place...
-        obviously?
-    """
+            for field in fields:
+                field.create(self)
 
-    def __init__(self, filenames=None):
-        super().__init__()
-        if filenames:
-            self.read(filenames)
+        self._locked = locked
 
-    @staticmethod
-    def make_data_attr():
-        return configparser.ConfigParser()
-        
-    def write(self, f, *args, **kwargs):
-        """
-        Write config to file using `ConfigPaser.write`
+    @property
+    def locked(self):
+        return self._locked
 
-        Parameters
-        ----------
-        f : file-like
-            file-like object to write to
-        *args
-            additional parameters to pass to `write`
-        **kwargs
-            additional parameters to pass to `write`
-        """
-        self.d.write(f, *args, **kwargs)
+    def lock(self):
+        self._locked = True
 
-    def read(self, filenames, *args, **kwargs):
-        """
-        Read config from file using `ConfigPaser.read`
+    def unlock(self):
+        self._locked = False
 
-        Parameters
-        ----------
-        name : str
-            name of file to write to
-        *args
-            additional parameters to pass to `read`
-        **kwargs
-            additional parameters to pass to `read`
-        """
-        self.d.read(filenames)
+    def __enter__(self):
+        self.unlock()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.lock()
 
 
 def _dict_path_get(d, path):
@@ -217,8 +208,7 @@ def _dict_path_get(d, path):
     return d
 
 
-@fields.add
-class Field:
+class BaseField:
     """
     Class representing a parameter from your configuration. This object encapsulates how this parameter is serialised
     and deserialsed.
@@ -226,9 +216,9 @@ class Field:
     Parameters
     ----------
     path : str, list, tuple
-        'path' to reach parameter within `data_attr` (see examples)
+        'path' to reach parameter within `_data_attr` (see examples) (optional - defaults to variable name assigned to)
     default :
-        default value for this parameter
+        default value for this parameter, defaults to None
 
     Examples
     --------
@@ -254,21 +244,121 @@ class Field:
 
     Note
     ----
-    Setting default to None will result in no values being entered in the data attr upon initialisation, which might
-    make the structure of the data attr look a bit weird until you fill it up with stuff. As such most of the time you
-    want it to be set to '' (the default).
+    Omitting default will result in no values being entered in the data attr upon initialisation, which might
+    make the structure of the data attr look a bit weird until you fill it up with stuff.
     """
 
-    def __init__(self, path=None, default=''):
+    _data_attr = None
+
+    @staticmethod
+    @abstractmethod
+    def make_data_attr():
+        pass
+
+    @abstractmethod
+    def create(self, instance):
+        pass
+
+    def pre_set(self, val):
+        """
+        Apply function to values before they are inserted into data attr
+        """
+        return val
+
+    def post_get(self, val):
+        """
+        Apply function to values after they are fetched from data attr
+        """
+        return val
+
+    @abstractmethod
+    def _get_value(self, instance):
+        """
+        Hook to allow you to control how the value is looked up in the underlying data structure - or not looked up
+        (See EnvField!)
+        """
+        pass
+
+    @abstractmethod
+    def _set_value(self, instance, value):
+        pass
+
+    def _check_lock(self, instance):
+        if instance.locked:
+            raise RuntimeError("Attempting to mutate a locked Bonfig")
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        d = getattr(instance, self._data_attr)
+        return self.post_get(self._get_value(d))
+
+    def __set__(self, instance, value):
+        self._check_lock(instance)
+        d = getattr(instance, self._data_attr)
+        self._set_value(d, self.pre_set(value))
+
+    def __repr__(self):
+        return "<{}: {}>".format(self.__class__.__name__, self.path)
+
+
+@fields.add
+class Field(BaseField):
+    """
+    Class representing a parameter from your configuration. This object encapsulates how this parameter is serialised
+    and deserialsed.
+
+    Parameters
+    ----------
+    path : str, list, tuple
+        'path' to reach parameter within `_data_attr` (see examples) (optional - defaults to variable name assigned to)
+    default :
+        default value for this parameter, defaults to None
+
+    Examples
+    --------
+    Using a str as path:
+
+    >>> class MyConfig(Bonfig):
+    >>>     A = Field('a', default='aye')
+    >>> c = MyConfig()
+    >>> c.A
+    'aye'
+    >>> c.d
+    {'a': 'aye'}
+
+    Using a list/ tuple gives a more hierarchical structure:
+    >>> class MyConfig(Bonfig):
+    >>>     A = Field(('Alpha', 'a'), default='aye')
+    >>>     B = Field(('Alpha', 'b'), default='bee')
+    >>> c = MyConfig()
+    >>> c.d
+    {'Alpha': {'a': 'aye', 'b': 'bee'}}
+    >>> c.A
+    'aye'
+
+    Note
+    ----
+    Omitting default will result in no values being entered in the data attr upon initialisation, which might
+    make the structure of the data attr look a bit weird until you fill it up with stuff.
+    """
+
+    _data_attr = 'd'
+
+    @staticmethod
+    def make_data_attr():
+        return {}
+
+    def __init__(self, path=None, val=None):
         if not isinstance(path, (list, tuple)) or path is None:
             path = [path]
         self.path = list(path)
 
         if self.name is None:
-            if _check_version(3, 6, comp='lt'):
-                raise TypeError("name can only be left blank for Python >= 3.6")
+            if check_version(3, 6, comp='lt'):
+                raise ValueError("name can only be left blank for Python >= 3.6")
 
-        self.default = default
+        self.val = val
 
     def __set_name__(self, owner, name):
         if self.name is None:
@@ -277,41 +367,31 @@ class Field:
     @property
     def name(self):
         """
-        Get the last item in path - i.e. the key used to fetch the parameter value from `data_attr`
+        Get the last item in path - i.e. the key used to fetch the parameter value from data attr
         """
         return self.path[-1]
 
-    def pre_set(self, val):
-        """
-        Apply function to values before they are inserted into `data_attr`
-        """
-        return val
+    def create(self, instance):
+        dd = instance.d
+        d = dd
+        for key in self.path[:-1]:
+            try:
+                d = d[key]
+            except KeyError:
+                d[key] = {}
+                d = d[key]
+        instance.d = dd
+        self.__set__(instance, self.val)
 
-    def post_get(self, val):
-        """
-        Apply function to values after they are fetched from `data_attr`
-        """
-        return val
-
-    def _get_value(self, d, path):
+    def _get_value(self, d):
         """
         Hook to allow you to control how the value is looked up in the underlying data structure - or not looked up
         (See EnvField!)
         """
-        return _dict_path_get(d, path)
+        return _dict_path_get(d, self.path)
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        d = getattr(instance, instance.__class__.data_attr)
-        return self.post_get(self._get_value(d, self.path))
-
-    def __set__(self, instance, value):
-        d = getattr(instance, instance.__class__.data_attr)
-        self._get_value(d, self.path[:-1])[self.name] = self.pre_set(value)
-
-    def __repr__(self):
-        return "<{}: {}>".format(self.__class__.__name__, self.path)
+    def _set_value(self, instance, value):
+        _dict_path_get(instance, self.path[:-1])[self.name] = value
 
 
 IntField = fields.make_quick('IntField', int, str)
@@ -321,7 +401,8 @@ BoolField = fields.make_quick('BoolField', bool, str)
 
 class Section:
     """
-    Convenience class for building up `PyBonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
+    Convenience class for building up multi-level `Fields`s. Corresponds to 'sections' in `configparser.ConfigParser`
+    objects.
 
     Parameters
     ----------
@@ -330,7 +411,7 @@ class Section:
 
     Examples
     --------
-    PySections make building up these configs a bit nicer:
+    CSections make building up these configs a bit nicer:
 
     >>> class MyConfig(Bonfig):
     >>>     output = Section('Output')
@@ -342,7 +423,7 @@ class Section:
     >>> c.output # is this to ugly?/ pointless?
     <Section ['Output']: {'a': <Field: ['Output', 'a']>, 'b': <Field: ['Output', 'b']>}>
 
-    All `pyfields` are available as attributes of the PySection instance, and the `section` parameter will implicitly be
+    All `INIfields` are available as attributes of the INISection instance, and the `section` parameter will implicitly be
     set.
     """
 
@@ -361,11 +442,12 @@ class Section:
         """
         fill in section parameter as self for any class!
         """
-        @functools.wraps(cls)
-        def wrapped_py_field(name=None, default='', **kwargs):
-            return cls([*self.path, name], default, **kwargs)
+        class WrappedPyField(cls):
 
-        return wrapped_py_field
+            def __init__(sself, name=None, val=None, **kwargs):
+                super().__init__([*self.path, name], val, **kwargs)
+
+        return type('Section' + cls.__name__, (WrappedPyField,), {})
 
     def __getattr__(self, item):
         try:
@@ -391,7 +473,7 @@ class SectionProxy:
 
     @property
     def d(self):
-        return _dict_path_get(getattr(self.parent, self.parent.data_attr), self.path)
+        return _dict_path_get(getattr(self.parent, self.parent._data_attr), self.path)
 
     def __getitem__(self, key):
         return self.d[key]
@@ -400,18 +482,17 @@ class SectionProxy:
         return "<Section {}: {}>".format(self.path, str(self.d))
 
 
-@pyfields.add
-class PyField(Field):
+@INIfields.add
+class INIField(BaseField):
     """
-    Subclass of field, specifically for use with `PyBonfig` - i.e. for use with `configparser.ConfigParser` as the
-    `data_attr`.
+    Subclass of Field whereby data is stored in a `configparser.ConfigParser` object named `parser`.
 
     Parameters
     ----------
-    name : str
-        name of parameter option.
     section : str
         name of section option belongs to.7
+    name : str
+        name of parameter option. (optional - defaults to variable name assigned to)
     default : obj
         value to default to!
 
@@ -420,21 +501,39 @@ class PyField(Field):
     Differs slightly from normal `Field` in that rather that taking the more general `path`, you have to provide a
     name and a section, in order to work with `ConfigParser`
 
-    Rather than putting in the same section each time, you can make a `PySection` object...
+    Rather than putting in the same section each time, you can make a `INISection` object...
 
-    Setting default to None will result in no values being entered in the data attr upon initialisation, which might
-    make the structure of the data attr look a bit weird until you fill it up with stuff. As such most of the time you
-    want it to be set to '' (the default).
+    Omitting default will result in no values being entered in the data attr upon initialisation, which might
+    make the structure of the data attr look a bit weird until you fill it up with stuff.
     """
 
-    def __init__(self, section, name=None, default=''):
-        if isinstance(section, PySection):
-            path = [section.name, name]
-        else:
-            path = [section, name]
-        super().__init__(path, default)
+    _data_attr = 'parser'
 
+    @staticmethod
+    def make_data_attr():
+        return configparser.ConfigParser()
+
+    def __init__(self, section, name=None, default=None):
         self.section = section
+        self.name = name
+        self.default = default
+
+    def __set_name__(self, owner, name):
+        if self.name is None:
+            self.name = name
+
+    def create(self, instance):
+        parser = getattr(instance, self._data_attr)
+        if self.section not in parser:
+            parser[self.section] = {}
+        if self.default:
+            getattr(instance, self._data_attr)[self.section][self.name] = self.pre_set(self.default)
+
+    def _get_value(self, instance):
+        return getattr(instance, self._data_attr)[self.section][self.name]
+
+    def _set_value(self, instance, value):
+        getattr(instance, self._data_attr)[self.section][self.name] = value
 
     def __set__(self, instance, value):
         try:
@@ -443,14 +542,14 @@ class PyField(Field):
             raise TypeError("{} invalid as ConfigParser option values have to be strings".format(value))
 
 
-PyIntField = pyfields.make_quick('PyIntField', int, str, bases=PyField)
-PyFloatField = pyfields.make_quick('PyFloatField', float, str, bases=PyField)
-PyBoolField = pyfields.make_quick('PyBoolField', bool, str, bases=PyField)
+INIIntField = INIfields.make_quick('INIIntField', int, str, bases=INIField)
+INIFloatField = INIfields.make_quick('INIFloatField', float, str, bases=INIField)
+INIBoolField = INIfields.make_quick('INIBoolField', bool, str, bases=INIField)
 
 
-class PySection(Section):
+class INISection(Section):
     """
-    Convenience class for building up `PyBonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
+    Convenience class for building up `Bonfig`s. Corresponds to 'sections' in `configparser.ConfigParser` objects.
 
     Parameters
     ----------
@@ -459,27 +558,27 @@ class PySection(Section):
 
     Examples
     --------
-    PySections make building up these configs a bit nicer:
+    CSections make building up these configs a bit nicer:
 
-    >>> class MyConfig(PyBonfig):
-    >>>     output = PySection('Output')
-    >>>     A = output.PyField('a', default='foo')
-    >>>     B = output.PyField('b', default='bar')
+    >>> class MyConfig(Bonfig):
+    >>>     output = INISection('Output')
+    >>>     A = output.INIField('a', default='foo')
+    >>>     B = output.INIField('b', default='bar')
     >>> c = MyConfig()
     >>> c.d
     <configparser.ConfigParser at 0x231b53f5eb8>
     >>> c.d._sections #  peer inside the config parser!
     OrderedDict([('Output', OrderedDict([('a', 'foo'), ('b', 'bar')]))])
 
-    All `pyfields` are available as attributes of the PySection instance, and the `section` parameter will implicitly be
+    All `INIfields` are available as attributes of the CSection instance, and the `section` parameter will implicitly be
     set.
     """
 
-    field_types = pyfields
+    field_types = INIfields
 
     def __init__(self, name):
         if not isinstance(name, str):
-            raise TypeError("PySections have to be at the top level for ConfigParser configurations, so name has to be"
+            raise TypeError("INISections have to be at the top level for ConfigParser configurations, so name has to be"
                             "as string")
         super().__init__(name)
 
@@ -488,21 +587,20 @@ class PySection(Section):
         fill in section parameter as self for any class!
         """
 
-        @functools.wraps(cls)
-        def wrapped_py_field(name=None, default='', **kwargs):
-            return cls(self, name, default, **kwargs)
+        def wrapped_py_field(name=None, default=None, **kwargs):
+            return cls(self.name, name, default, **kwargs)
 
         return wrapped_py_field
 
 
-class EnvField(Field):
+class EnvField(BaseField):
     """
     A config Field where it's value is looked up in your environment variables.
 
     Parameters
     ----------
     name : str
-        name of environment variable to look up
+        name of environment variable to look up (optional - defaults to variable name assigned to)
     default : str
         fallback value if not found
 
@@ -514,15 +612,36 @@ class EnvField(Field):
     value won't be written to disk.
     """
 
-    def __init__(self, name=None, default=''):
+    _data_attr = 'environ'
+
+    @staticmethod
+    def make_data_attr():
+        return os.environ
+
+    def __init__(self, name=None, default='', dynamic=False):
         if not isinstance(name, str) and name is not None:
             raise TypeError("Environment variable name must be a string!")
 
-        super().__init__(name, None)
+        self.name = name
+        self.default = default
+        self.dynamic = dynamic
+        self._cache = None
 
-        self.env_default = default
+    def __set_name__(self, owner, name):
+        if self.name is None:
+            self.name = name
 
-    def _get_value(self, d, path):
-        if not path:
-            return os.environ
-        return os.environ.get(self.name, default=self.env_default)
+    def create(self, instance):
+        if not self.dynamic:
+            self._cache = os.environ.get(self.name, self.default)
+
+    def _get_value(self, d):
+        if not self.dynamic:
+            return self._cache
+
+        return d.get(self.name, default=self.default)
+
+
+EnvIntField = make_sub_field('EnvIntField', int, str, bases=EnvField)
+EnvFloatField = make_sub_field('EnvFloatField', float, str, bases=EnvField)
+EnvBoolField = make_sub_field('EnvBoolField', bool, str, bases=EnvField)

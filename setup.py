@@ -11,6 +11,7 @@ setup(name='bonfig',
     download_url="https://github.com/0Hughman0/bonfig/archive/{}.tar.gz".format(__version__),
     py_modules=['bonfig'],
     license='MIT',
-    python_requires=">=3.4")
+    python_requires=">=3.4",
+    test_requires="pytest")
 
 conf_dict = read_configuration('./setup.cfg')
