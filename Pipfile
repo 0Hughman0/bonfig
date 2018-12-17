@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 pytest = "*"
+docutils = "*"
+pygments = "*"
+tox = "*"
+tox-globinterpreter = "*"
 
 [dev-packages]
 

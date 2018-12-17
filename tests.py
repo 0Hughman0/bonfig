@@ -1,33 +1,30 @@
 import pytest
 
-from bonfig import *
+from bonfig import Bonfig
+from bonfig.fields import *
 
 
 def test_set_name_func_field():
-    if check_version(3, 6, comp='lt'):
-        with pytest.raises(TypeError):
-            class TestBonfig(Bonfig):
-                a = Field()
-        return  # break!
 
     class TestBonfigA(Bonfig):
-        a = Field('a', 1)
-        b = Field(('A', 'b'), 1)
+        a = Field(1, 'a')
+        b = Field(2, ('A', 'b'))
 
-        c = INIField('A', 'c', default='val')
+        c = INIField('A', default='val')
 
     class TestBonfigB(Bonfig):
-        a = Field(val=1)
-        b = Field(('A', None), 2)
+        a = Field(1)
+        b = Field(2, ('A', None))
 
         c = INIField('A', default='val')
 
     a = TestBonfigA()
     b = TestBonfigB()
 
-    assert TestBonfigA.a.path == TestBonfigB.a.path, "name paths are not equivalent using __set_name__ mech"
-    assert TestBonfigA.b.path == TestBonfigB.b.path, "list paths are not equivalent using __set_name__ mech"
-    assert a.parser == b.parser
+    assert a.d['a'] == b.d['a'], "name paths are not equivalent using __set_name__ mech"
+    assert a.d['A']['b'] == b.d['A']['b'], "list paths are not equivalent using __set_name__ mech"
+    assert a.ini == b.ini
+    assert a.ini['A']['c'] == a.ini['A']['c']
 
 
 def test_lock():
@@ -96,8 +93,11 @@ def test_combo():
     c = ComboConfig()
 
     assert c.d == {'a': 'foo'}
-    assert c.parser['Sec A']['b'] == 'foo'
+    assert c.a == 'foo'
+    assert c.ini['Sec A']['b'] == 'foo'
+    assert c.b == 'foo'
     assert c.environ['c'] == 'foo'
+    assert c.c == 'foo'
 
 
 def test_sections():
@@ -113,10 +113,10 @@ def test_sections():
 
     class TestBonfigB(Bonfig):
 
-        a = Field(('A', 'ta'))
-        b = IntField(('A', 1))
-        c = FloatField(('A', 0.1))
-        e = BoolField(('A', False))
+        a = Field('ta', ('A', 'a'))
+        b = IntField(1, ('A', 'b'))
+        c = FloatField(0.1, ('A', 'c'))
+        e = BoolField(False, ('A', 'e'))
 
     a = TestBonfigA()
     b = TestBonfigB()
@@ -143,7 +143,7 @@ def test_sections():
     a = TestBonfigA()
     b = TestBonfigB()
 
-    assert a.parser == b.parser
+    assert a.ini == b.ini
 
 
 def test_custom_field():
@@ -164,7 +164,7 @@ def test_custom_field():
     teven = ['2', '4', '6']
 
     class TestBonfig(Bonfig):
-        odd = ListField(val=todd)
+        odd = ListField(todd)
         lists = Section('lists')
         even = lists.ListField(val=teven)
 
