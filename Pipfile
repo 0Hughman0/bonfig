@@ -9,6 +9,8 @@ docutils = "*"
 pygments = "*"
 tox = "*"
 tox-globinterpreter = "*"
+sphinx = "*"
+coverage = "*"
 
 [dev-packages]
 

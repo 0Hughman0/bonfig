@@ -1,20 +1,8 @@
-import json
-
-from bonfig.core import BaseField, BaseIOStore, FieldDict
+from bonfig.fields.base import FieldDict, str_bool
 from bonfig.fields.field import Field, Section
 
 
-class JSONStore(dict, BaseIOStore):
-
-    def __init__(self, parent):
-        super().__init__()
-        BaseIOStore.__init__(self, parent)
-
-    dumps = BaseIOStore._method_chainify()(json.dumps)
-    dump = BaseIOStore._method_chainify()(json.dump)
-
-    load = BaseIOStore._method_chainify(True)(json.load)
-    loads = BaseIOStore._method_chainify(True)(json.loads)
+from ..stores.json import JSONStore
 
 
 class JSONField(Field):
@@ -43,25 +31,8 @@ class JSONField(Field):
 
     _store_attr = 'json'
 
-    def create_store(self, parent):
-        return JSONStore(parent)
-
-    def initialise(self, bonfig):
-        dd = bonfig.json
-        d = dd
-        for key in self.path[:-1]:
-            try:
-                d = d[key]
-            except KeyError:
-                d[key] = {}
-                d = d[key]
-        bonfig.d = dd
-        self._set_value(getattr(bonfig, self._store_attr), self.pre_set(self.val))
 
 JSONfields = FieldDict(JSONField)
-JSONIntField = JSONfields.make_quick('JSONIntField', int, str)
-JSONFloatField = JSONfields.make_quick('JSONFloatField', float, str)
-JSONBoolField = JSONfields.make_quick('JSONBoolField', bool, str)
 
 
 class JSONSection(Section):

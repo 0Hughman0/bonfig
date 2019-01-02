@@ -1,7 +1,6 @@
 import os
 
-from ..core import BaseField
-from bonfig.core import make_sub_field
+from bonfig.fields.base import BaseField, make_sub_field, str_bool
 
 
 class EnvField(BaseField):
@@ -25,9 +24,6 @@ class EnvField(BaseField):
 
     _store_attr = 'environ'
 
-    def create_store(self, parent):
-        return os.environ
-
     def __init__(self, name=None, default='', dynamic=False):
         if not isinstance(name, str) and name is not None:
             raise TypeError("Environment variable name must be a string!")
@@ -43,13 +39,13 @@ class EnvField(BaseField):
 
     def initialise(self, bonfig):
         if not self.dynamic:
-            self._cache = bonfig.environ.get(self.name, self.default)
+            self._cache = self.get_store(bonfig).get(self.name, self.default)
 
-    def _get_value(self, d):
+    def _get_value(self, store):
         if not self.dynamic:
             return self._cache
 
-        return d.get(self.name, default=self.default)
+        return store.get(self.name, default=self.default)
 
     def _set_value(self, store, value):
         if not self.dynamic:
@@ -59,4 +55,4 @@ class EnvField(BaseField):
 
 EnvIntField = make_sub_field('EnvIntField', int, str, bases=EnvField)
 EnvFloatField = make_sub_field('EnvFloatField', float, str, bases=EnvField)
-EnvBoolField = make_sub_field('EnvBoolField', bool, str, bases=EnvField)
+EnvBoolField = make_sub_field('EnvBoolField', str_bool, str, bases=EnvField)

@@ -21,10 +21,10 @@ def test_set_name_func_field():
     a = TestBonfigA()
     b = TestBonfigB()
 
-    assert a.d['a'] == b.d['a'], "name paths are not equivalent using __set_name__ mech"
-    assert a.d['A']['b'] == b.d['A']['b'], "list paths are not equivalent using __set_name__ mech"
-    assert a.ini == b.ini
-    assert a.ini['A']['c'] == a.ini['A']['c']
+    assert a.stores.d['a'] == b.stores.d['a'], "name paths are not equivalent using __set_name__ mech"
+    assert a.stores.d['A']['b'] == b.stores.d['A']['b'], "list paths are not equivalent using __set_name__ mech"
+    assert a.stores.ini == b.stores.ini
+    assert a.stores.ini['A']['c'] == a.stores.ini['A']['c']
 
 
 def test_lock():
@@ -64,21 +64,21 @@ def test_env_field():
         a = EnvField('Test')
         b = EnvField('Best', default='fallback')
         c = EnvField('Test', dynamic=True)
-        d = EnvField('Best', default='fallback', dynamic=True)
+        e = EnvField('Best', default='fallback', dynamic=True)
 
     c = TestBonfig()
 
     assert c.a == 't'
     assert c.b == 'fallback'
     assert c.c == 't'
-    assert c.d == 'fallback'
+    assert c.e == 'fallback'
 
     os.environ['Test'] = 'changed'
     os.environ['Best'] = 'also changed'
     assert c.a == 't'
     assert c.b == 'fallback'
     assert c.c == 'changed'
-    assert c.d == 'also changed'
+    assert c.e == 'also changed'
 
 
 def test_combo():
@@ -92,11 +92,11 @@ def test_combo():
 
     c = ComboConfig()
 
-    assert c.d == {'a': 'foo'}
+    assert c.stores.d == {'a': 'foo'}
     assert c.a == 'foo'
-    assert c.ini['Sec A']['b'] == 'foo'
+    assert c.stores.ini['Sec A']['b'] == 'foo'
     assert c.b == 'foo'
-    assert c.environ['c'] == 'foo'
+    assert c.stores.environ['c'] == 'foo'
     assert c.c == 'foo'
 
 
@@ -121,7 +121,7 @@ def test_sections():
     a = TestBonfigA()
     b = TestBonfigB()
 
-    assert a.d == b.d
+    assert a.stores.d == b.stores.d
 
     class TestBonfigA(Bonfig):
 
@@ -139,11 +139,10 @@ def test_sections():
         c = INIFloatField('A', default=0.1)
         e = INIBoolField('A', default=False)
 
-
     a = TestBonfigA()
     b = TestBonfigB()
 
-    assert a.ini == b.ini
+    assert a.stores.ini == b.stores.ini
 
 
 def test_custom_field():
@@ -170,8 +169,59 @@ def test_custom_field():
 
     c = TestBonfig()
 
-    assert c.d['odd'] == "1, 2, 3"
+    assert c.stores.d['odd'] == "1, 2, 3"
     assert c.odd == todd
 
-    assert c.d['lists']['even'] == "2, 4, 6"
+    assert c.stores.d['lists']['even'] == "2, 4, 6"
     assert c.even == teven
+
+
+def test_json():
+    class TestBonfig(Bonfig):
+        a = JSONField('a')
+        b = JSONField(1)
+        c = JSONField(0.75)
+        e = JSONField(False)
+
+    c = TestBonfig()
+
+    assert c.a == 'a'
+    assert c.b == 1
+    assert c.c == 0.75
+    assert c.e is False
+
+    c.a = 'b'
+
+    assert c.a == 'b'
+
+    prev = c.stores.json.dumps()
+
+    c.a = 'c'
+    c.b = 2
+    c.c = 0.2
+    c.e = True
+
+    assert c.a == 'c'
+    assert c.b == 2
+    assert c.c == 0.2
+    assert c.e is True
+
+    c.stores.json.loads(prev)
+
+    assert c.a == 'b'
+    assert c.b == 1
+    assert c.c == 0.75
+    assert c.e is False
+
+
+def test_ini():
+    class TestBonfig(Bonfig):
+        a = INIField('A')
+        b = INIField('A')
+
+    c = TestBonfig()
+    s = c.stores.ini.read_string("[A]\na = one\nb=two")
+
+    assert s == c.stores
+    assert c.a == 'one'
+    assert c.b == 'two'

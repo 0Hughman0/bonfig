@@ -1,5 +1,4 @@
-from ..core import BaseField
-from bonfig.core import FieldDict
+from bonfig.fields.base import BaseField, FieldDict, str_bool
 
 
 def _dict_path_get(d, path):
@@ -46,9 +45,6 @@ class Field(BaseField):
 
     _store_attr = 'd'
 
-    def create_store(self, parent):
-        return {}
-
     def __init__(self, val, path=None):
         self.val = val
 
@@ -68,16 +64,17 @@ class Field(BaseField):
         return self.path[-1]
 
     def initialise(self, bonfig):
-        dd = bonfig.d
+        dd = self.get_store(bonfig)
+        dtype = dd.__class__
         d = dd
         for key in self.path[:-1]:
             try:
                 d = d[key]
             except KeyError:
-                d[key] = {}
+                d[key] = dtype()
                 d = d[key]
-        bonfig.d = dd
-        self._set_value(getattr(bonfig, self._store_attr), self.pre_set(self.val))
+        setattr(bonfig.stores, self._store_attr, dd)
+        self._set_value(self.get_store(bonfig), self.pre_set(self.val))
 
     def _get_value(self, d):
         """
@@ -92,40 +89,40 @@ class Field(BaseField):
 fields = FieldDict(Field)
 IntField = fields.make_quick('IntField', int, str)
 FloatField = fields.make_quick('FloatField', float, str)
-BoolField = fields.make_quick('BoolField', bool, str)
+BoolField = fields.make_quick('BoolField', str_bool, str)
 
 
 class Section:
-    """
-    Convenience class for building up multi-level `Fields`s. Corresponds to 'sections' in `configparser.ConfigParser`
-    objects.
-
-    Parameters
-    ----------
-    name : str
-        name of section
-
-    Examples
-    --------
-    CSections make building up these configs a bit nicer:
-
-    >>> class MyConfig(Bonfig):
-    >>>     output = Section('Output')
-    >>>     A = output.Field('a', default='foo')
-    >>>     B = output.Field('b', default='bar')
-    >>> c = MyConfig()
-    >>> c.d
-    {'Output': {'a': 'foo', 'b': 'bar'}}
-    >>> c.output # is this to ugly?/ pointless?
-    <Section ['Output']: {'a': <Field: ['Output', 'a']>, 'b': <Field: ['Output', 'b']>}>
-
-    All `INIfields` are available as attributes of the INISection instance, and the `section` parameter will implicitly be
-    set.
-    """
 
     field_types = fields
 
     def __init__(self, path):
+        """
+        Convenience class for building up multi-level `Fields`s. Corresponds to 'sections' in `configparser.ConfigParser`
+        objects.
+
+        Parameters
+        ----------
+        name : str
+            name of section
+
+        Examples
+        --------
+        CSections make building up these configs a bit nicer:
+
+        >>> class MyConfig(Bonfig):
+        >>>     output = Section('Output')
+        >>>     A = output.Field('a', default='foo')
+        >>>     B = output.Field('b', default='bar')
+        >>> c = MyConfig()
+        >>> c.d
+        {'Output': {'a': 'foo', 'b': 'bar'}}
+        >>> c.output # is this to ugly?/ pointless?
+        <Section ['Output']: {'a': <Field: ['Output', 'a']>, 'b': <Field: ['Output', 'b']>}>
+
+        All `INIfields` are available as attributes of the INISection instance, and the `section` parameter will implicitly be
+        set.
+            """
         if not isinstance(path, (list, tuple)) or path is None:
             path = [path]
         self.path = list(path)
@@ -170,7 +167,7 @@ class SectionProxy:
 
     @property
     def d(self):
-        return _dict_path_get(getattr(self.parent, self.parent._store_attr), self.path)
+        return _dict_path_get(getattr(self.parent.bstores, self.parent._store_attr), self.path)
 
     def __getitem__(self, key):
         return self.d[key]

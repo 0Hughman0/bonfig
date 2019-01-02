@@ -1,19 +1,5 @@
-from configparser import ConfigParser
-
-from bonfig.core import BaseField, BaseIOStore, FieldDict
+from bonfig.fields.base import BaseField, FieldDict, str_bool
 from bonfig.fields.field import Section
-
-
-class INIStore(ConfigParser, BaseIOStore):
-
-    def __init__(self, parent):
-        super().__init__()
-        BaseIOStore.__init__(self, parent)
-
-    read = BaseIOStore._method_chainify()(ConfigParser.read)
-    read_file = BaseIOStore._method_chainify()(ConfigParser.read_file)
-    read_string = BaseIOStore._method_chainify()(ConfigParser.read_string)
-    read_dict = BaseIOStore._method_chainify()(ConfigParser.read_dict)
 
 
 class INIField(BaseField):
@@ -42,9 +28,6 @@ class INIField(BaseField):
 
     _store_attr = 'ini'
 
-    def create_store(self, parent):
-        return INIStore(parent)
-
     def __init__(self, section, default=None, name=None):
         self.section = section
         self.default = default
@@ -55,11 +38,11 @@ class INIField(BaseField):
             self.name = name
 
     def initialise(self, bonfig):
-        parser = getattr(bonfig, self._store_attr)
-        if self.section not in parser:
-            parser[self.section] = {}
+        store = self.get_store(bonfig)
+        if self.section not in store:
+            store[self.section] = {}
         if self.default:
-            getattr(bonfig, self._store_attr)[self.section][self.name] = self.pre_set(self.default)
+            self.get_store(bonfig)[self.section][self.name] = self.pre_set(self.default)
 
     def _get_value(self, store):
         return store[self.section][self.name]
@@ -71,7 +54,7 @@ class INIField(BaseField):
 INIfields = FieldDict(INIField)
 INIIntField = INIfields.make_quick('INIIntField', int, str)
 INIFloatField = INIfields.make_quick('INIFloatField', float, str)
-INIBoolField = INIfields.make_quick('INIBoolField', bool, str)
+INIBoolField = INIfields.make_quick('INIBoolField', str_bool, str)
 
 
 class INISection(Section):
