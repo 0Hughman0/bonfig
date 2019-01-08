@@ -27,6 +27,7 @@ This also means we can make the initialisation work like:
 Which I think is a nice compromise.
 """
 
-__version__ = "2.0"
+from .core import Bonfig, Store
+from bonfig.fields import Field, fields, Section
 
-from .core import Bonfig
+__version__ = "2.0"

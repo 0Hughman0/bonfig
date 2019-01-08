@@ -3573,7 +3573,7 @@ jQuery.extend( {
 								mightThrow = function() {
 									var returned, then;
 
-									// Support: Promises/A+ section 2.3.3.3.3
+									// Support: Promises/A+ supsection 2.3.3.3.3
 									// https://promisesaplus.com/#point-59
 									// Ignore double-resolution attempts
 									if ( depth < maxDepth ) {
@@ -3582,7 +3582,7 @@ jQuery.extend( {
 
 									returned = handler.apply( that, args );
 
-									// Support: Promises/A+ section 2.3.1
+									// Support: Promises/A+ supsection 2.3.1
 									// https://promisesaplus.com/#point-48
 									if ( returned === deferred.promise() ) {
 										throw new TypeError( "Thenable self-resolution" );
@@ -3594,7 +3594,7 @@ jQuery.extend( {
 									// Retrieve `then` only once
 									then = returned &&
 
-										// Support: Promises/A+ section 2.3.4
+										// Support: Promises/A+ supsection 2.3.4
 										// https://promisesaplus.com/#point-64
 										// Only check objects and functions for thenability
 										( typeof returned === "object" ||
@@ -3656,7 +3656,7 @@ jQuery.extend( {
 													process.stackTrace );
 											}
 
-											// Support: Promises/A+ section 2.3.3.3.4.1
+											// Support: Promises/A+ supsection 2.3.3.3.4.1
 											// https://promisesaplus.com/#point-61
 											// Ignore post-resolution exceptions
 											if ( depth + 1 >= maxDepth ) {
@@ -3673,7 +3673,7 @@ jQuery.extend( {
 										}
 									};
 
-							// Support: Promises/A+ section 2.3.3.3.1
+							// Support: Promises/A+ supsection 2.3.3.3.1
 							// https://promisesaplus.com/#point-57
 							// Re-resolve promises immediately to dodge false rejection from
 							// subsequent errors
@@ -4100,7 +4100,7 @@ Data.prototype = {
 		//   1. No key was specified
 		//   2. A string key was specified, but no value provided
 		//
-		// Take the "read" path and allow the get method to determine
+		// Take the "read" keys and allow the get method to determine
 		// which value to return, respectively either:
 		//
 		//   1. The entire cache object
@@ -4120,8 +4120,8 @@ Data.prototype = {
 		//
 		this.set( owner, key, value );
 
-		// Since the "set" path can have two possible entry points
-		// return the expected data based on which path was taken[*]
+		// Since the "set" keys can have two possible entry points
+		// return the expected data based on which keys was taken[*]
 		return value !== undefined ? value : key;
 	},
 	remove: function( owner, key ) {
@@ -4190,7 +4190,7 @@ var dataUser = new Data();
 //	3. Use the same single mechanism to support "private" and "user" data.
 //	4. _Never_ expose "private" data to user code (TODO: Drop _data, _removeData)
 //	5. Avoid exposing implementation details on user objects (eg. expando properties)
-//	6. Provide a clear path for implementation upgrade to WeakMap in 2014
+//	6. Provide a clear keys for implementation upgrade to WeakMap in 2014
 
 var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
 	rmultiDash = /[A-Z]/g;
@@ -8167,7 +8167,7 @@ jQuery.extend( jQuery.event, {
 			return;
 		}
 
-		// Determine event propagation path in advance, per W3C events spec (#9951)
+		// Determine event propagation keys in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
 		if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
 
@@ -8186,7 +8186,7 @@ jQuery.extend( jQuery.event, {
 			}
 		}
 
-		// Fire handlers on the event path
+		// Fire handlers on the event keys
 		i = 0;
 		while ( ( cur = eventPath[ i++ ] ) && !event.isPropagationStopped() ) {
 

@@ -1,6 +1,11 @@
+import sys
+sys.path.insert(0, r'D:\Documents\Programin\WorkingVersions\donfig\dev')
+
 from bonfig import __version__
 from distutils.core import setup
 from setuptools.config import read_configuration
+
+
 
 setup(name='bonfig',
     version=__version__,
@@ -9,7 +14,7 @@ setup(name='bonfig',
     author='Hugh Ramsden',
     url='https://github.com/0Hughman0/bonfig',
     download_url="https://github.com/0Hughman0/bonfig/archive/{}.tar.gz".format(__version__),
-    py_packages=['bonfig'],
+    py_packages=['bonfig', 'bonfig.stores', 'bonfig.fields'],
     license='MIT',
     python_requires=">=3.4",
     test_requires="pytest")

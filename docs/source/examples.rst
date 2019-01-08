@@ -114,3 +114,26 @@ More hierarchical structures
     ...         self.stores.ini.read(f"{f}.ini")
     ... c = c(f='config')
 
+
+.. code:: python3
+
+    >>> class Config(Bonfig):
+    ...     d = Store('d')
+    ...     ini = Store('ini')
+    ...     with d:
+                a = Field()
+    ...     a = d.Field(12, name='b')
+    ...     # For ini
+    ...     sec = ini.Section("Section")
+    ...     b = sec.Field("hmmm")
+    ...
+    ...     def load(self):
+    ...         self.stores.d = {}
+    ...         self.stores.ini = configparser.ConfigParser()
+    ...         # if self.ini is still Store subclass then something's gone wrong!
+    ...         # Can remove need for multiple INIFields etc. Rely on consistent __getitem__ behaviour.
+    ...         keys
+
+    c = Config()
+    c.freeze() # Uses the store and __get__ and __set__ to somehow return a ProxyMapping thing, that 'protects' the underlying data...
+

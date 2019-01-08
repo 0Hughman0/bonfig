@@ -9,12 +9,12 @@
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
+# add these directories to sys.keys here. If the directory is relative to the
+# documentation root, use os.keys.abspath to make it absolute, like shown here.
 #
 # import os
 # import sys
-# sys.path.insert(0, os.path.abspath('.'))
+# sys.keys.insert(0, os.keys.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
@@ -140,7 +140,7 @@ latex_documents = [
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
+# (source start file, name, description, authors, manual supsection).
 man_pages = [
     (master_doc, 'bonfig', 'Bonfig Documentation',
      [author], 1)
