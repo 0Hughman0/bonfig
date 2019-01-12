@@ -21,14 +21,13 @@ def test_section():
         def load(self):
             self.s = {}
 
-
     class ConfigB(Bonfig):
         s = Store()
 
-        A = s.Section(name='A')
-        B = s.Section(name='B')
-        C = s.Section('B', 'C')
-        D = s.Section(('B', 'C'), 'D')
+        A = s.Section('A')
+        B = s.Section('B')
+        C = s.Section('C', supsection='B')
+        D = s.Section('D', supsection=('B', 'C'))
 
         a = A.Field('Aa')
         b = B.Field('Bb')
@@ -37,7 +36,6 @@ def test_section():
 
         def load(self, *args, **kwargs):
             self.s = {}
-
 
     ca = ConfigA()
     cb = ConfigB()
@@ -253,3 +251,52 @@ def test_load():
 
     assert c.a == 'one'
     assert c.b == 'two'
+
+
+def test_withmad():
+    # As shortener
+    class A(Bonfig):
+        store = Store()
+
+        with store as s:
+            a = s.Field('A')
+            section = s.Section()
+            with section as sec:
+                b = sec.Field('B')
+
+        def load(self):
+            self.store = {}
+
+    class B(Bonfig):
+        with Store() as store:
+            a = store.Field('A')
+
+            with store.Section() as section:
+                b = section.Field('B')
+
+        def load(self):
+            self.store = {}
+
+
+    class C(Bonfig):
+        store = Store()
+
+        a = store.Field('A')
+
+        section = store.Section()
+        b = section.Field('B')
+
+        def load(self):
+            self.store = {}
+
+    ca, cb, cc = A(), B(), C()
+
+    cs = [ca, cb, cc]
+    Cs = [A, B, C]
+
+    for c, C in zip(cs, Cs):
+        assert c.__fields__.keys() == {'store'}
+        assert c.a == 'A'
+        assert c.b == 'B'
+        assert C.a.keys == ['a']
+        assert C.b.keys == ['section', 'b']

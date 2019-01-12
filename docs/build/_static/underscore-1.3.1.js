@@ -706,7 +706,7 @@
     }
     if (typeof a != 'object' || typeof b != 'object') return false;
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
-    // structures is adapted from ES 5.1 supsection 15.12.3, abstract operation `JO`.
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
     var length = stack.length;
     while (length--) {
       // Linear search. Performance is inversely proportional to the number of

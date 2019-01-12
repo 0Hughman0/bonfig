@@ -115,9 +115,53 @@
 <span class="gp">... </span>    <span class="n">a</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">sec</span> <span class="o">=</span> <span class="n">INISection</span><span class="p">(</span><span class="s2">&quot;Section&quot;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">b</span> <span class="o">=</span> <span class="n">sec</span><span class="o">.</span><span class="n">INIField</span><span class="p">(</span><span class="s2">&quot;hmmm&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span><span class="o">.</span><span class="n">bonstores</span>
-<span class="gp">... </span>                <span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-<span class="gp">... </span>                <span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="o">.</span><span class="n">config</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">bonstores</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">bonstores</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">bonstores</span><span class="o">.</span><span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">bonstores</span><span class="o">.</span><span class="n">ini</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">a</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">sec</span> <span class="o">=</span> <span class="n">INISection</span><span class="p">(</span><span class="s2">&quot;Section&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">b</span> <span class="o">=</span> <span class="n">sec</span><span class="o">.</span><span class="n">INIField</span><span class="p">(</span><span class="s2">&quot;hmmm&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{f}</span><span class="s2">.json&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">ini</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{f}</span><span class="s2">.ini&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python3 highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">d</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">ini</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;ini&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">d</span><span class="p">:</span>
+<span class="go">            a = Field()</span>
+<span class="gp">... </span>    <span class="n">a</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="c1"># For ini</span>
+<span class="gp">... </span>    <span class="n">sec</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span><span class="s2">&quot;Section&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">b</span> <span class="o">=</span> <span class="n">sec</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s2">&quot;hmmm&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">stores</span><span class="o">.</span><span class="n">ini</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="c1"># if self.ini is still Store subclass then something&#39;s gone wrong!</span>
+<span class="gp">... </span>        <span class="c1"># Can remove need for multiple INIFields etc. Rely on consistent __getitem__ behaviour.</span>
+<span class="gp">... </span>        <span class="n">keys</span>
+
+<span class="go">c = Config()</span>
+<span class="go">c.freeze() # Uses the store and __get__ and __set__ to somehow return a ProxyMapping thing, that &#39;protects&#39; the underlying data...</span>
 </pre></div>
 </div>
 </div>

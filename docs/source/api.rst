@@ -1,7 +1,8 @@
 .. automodule:: bonfig
+    :members: Bonfig
 
 Hmmm
 ====
 
 .. automodule:: bonfig.fields
-    :members: Field, BoolField, IntField, FloatField, fields, Section
+    :members: Store, Section, Field, BoolField, IntField, FloatField

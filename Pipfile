@@ -11,6 +11,7 @@ tox = "*"
 tox-globinterpreter = "*"
 sphinx = "*"
 coverage = "*"
+numpydoc = "*"
 
 [dev-packages]
 

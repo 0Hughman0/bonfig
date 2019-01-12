@@ -44,83 +44,454 @@
 <h1>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h1>
 <dl class="docutils">
 <dt>fields <span class="classifier-delimiter">:</span> <span class="classifier">FieldDict</span></dt>
-<dd>A dict like object that stores all of the field classes. This dict is used to provide sections with access to field
-classes, as such, add to this global dict to make custom fields available in that context.</dd>
-<dt>INIfields: FieldDict</dt>
-<dd>A dict like object that stores all of the cfield classes. This dict is used to provide sections with access to
-field classes, as such, add to this global dict to make custom fields available in that context.</dd>
+<dd>A global <cite>dict</cite> -like object that stores all of the field classes. This dict is used to provide stores and sections
+with access to field classes, as such, add to this global dict to make custom fields available in that context. (By
+default includes <cite>Field</cite>, <cite>IntField</cite>, <cite>FloatField</cite> and <cite>BoolField</cite>.</dd>
 </dl>
-<p># Todo:
-Create an abstract base class for the data attribute that very loosely wraps the data storage class, e.g. the dict,
-ConfigParser or Environment. This allows for consistent read write syntax (can add a JSON class in that case).</p>
-<p>This also means we can make the initialisation work like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">MyBonfig</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;mine.ini&#39;</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;ting.json&#39;</span><span class="p">)</span>
-</pre></div>
+<dl class="class">
+<dt id="bonfig.Bonfig">
+<em class="property">class </em><code class="descclassname">bonfig.</code><code class="descname">Bonfig</code><span class="sig-paren">(</span><em>locked=False</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all Bonfigs.</p>
+<p class="rubric">Notes</p>
+<p>Instances of this class shouldn’t be created directly, instead it should be subclassed (see examples).</p>
+<p>Ideally do not call <cite>__init__</cite> directly, instead use the provided load hook for initialising things like data stores.</p>
+<p class="rubric">Examples</p>
+<p># Todo</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>__fields__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">defaultdict</span></dt>
+<dd><p class="first last">a <cite>defaultdict</cite> containing all the classes <cite>Field</cite> attributes, grouped by <cite>store_attr</cite></p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.Bonfig.finalise" title="bonfig.Bonfig.finalise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalise</span></code></a>()</td>
+<td>Hook called during initialisation after fields have been initialised.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Hook called during initialisation for loading store attributes.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.Bonfig.lock" title="bonfig.Bonfig.lock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock</span></code></a>()</td>
+<td>Lock <cite>Bonfig</cite> instance.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.Bonfig.unlock" title="bonfig.Bonfig.unlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unlock</span></code></a>()</td>
+<td>Unlock <cite>Bonfig</cite> instance.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.Bonfig.finalise">
+<code class="descname">finalise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.finalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook called during initialisation after fields have been initialised.</p>
+<p>This could be useful for maybe replacing your store with a read-only version of itself (see examples)</p>
+<p>Default behaviour is to do absolutely nothing!</p>
+<p class="rubric">Examples</p>
+<p># Todo</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.Bonfig.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook called during initialisation for loading store attributes.</p>
+<p>Is basically <cite>__init__</cite>, but called at the right time such that locking works and that fields can be
+initialised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.Bonfig.lock">
+<code class="descname">lock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lock <cite>Bonfig</cite> instance. This prevents any values being set on <cite>Field</cite> s.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Whilst this prevents setting <cite>Field</cite> values through attributes, values can still be changed in the         underlying store data.</p>
 </div>
-<p>Which I think is a nice compromise.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.Bonfig.unlock" title="bonfig.Bonfig.unlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unlock</span></code></a></dt>
+<dd>unlock the <cite>Bonfig</cite> instance</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.Bonfig.locked">
+<code class="descname">locked</code><a class="headerlink" href="#bonfig.Bonfig.locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <cite>Bonfig</cite> instance is locked</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.Bonfig.unlock">
+<code class="descname">unlock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.unlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlock <cite>Bonfig</cite> instance. This allows setting values of <cite>Field</cite> s.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.Bonfig.lock" title="bonfig.Bonfig.lock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock</span></code></a></dt>
+<dd>lock the <cite>Bonfig</cite> instance</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-bonfig.fields">
 <span id="hmmm"></span><h1>Hmmm<a class="headerlink" href="#module-bonfig.fields" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="bonfig.fields.Field">
-<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>val</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class representing a parameter from your configuration. This object encapsulates how this parameter is serialised
-and deserialsed.</p>
-<dl class="docutils">
-<dt>path <span class="classifier-delimiter">:</span> <span class="classifier">str, list, tuple</span></dt>
-<dd>‘path’ to reach parameter within <cite>_store_attr</cite> (see examples) (optional - defaults to variable name assigned to)</dd>
-<dt>default :</dt>
-<dd>default value for this parameter, defaults to None</dd>
-</dl>
-<p>Using a str as path:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyConfig</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">A</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;aye&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">MyConfig</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">A</span>
-<span class="go">&#39;aye&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">d</span>
-<span class="go">{&#39;a&#39;: &#39;aye&#39;}</span>
+<dt id="bonfig.fields.Store">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Store</code><span class="sig-paren">(</span><em>_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for storing data of <cite>Fields</cite> owned by this store.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Todo</span>
 </pre></div>
 </div>
-<p>Using a list/ tuple gives a more hierarchical structure:
-&gt;&gt;&gt; class MyConfig(Bonfig):
-&gt;&gt;&gt;     A = Field((‘Alpha’, ‘a’), default=’aye’)
-&gt;&gt;&gt;     B = Field((‘Alpha’, ‘b’), default=’bee’)
-&gt;&gt;&gt; c = MyConfig()
-&gt;&gt;&gt; c.d
-{‘Alpha’: {‘a’: ‘aye’, ‘b’: ‘bee’}}
-&gt;&gt;&gt; c.A
-‘aye’</p>
-<dl class="method">
-<dt id="bonfig.fields.Field.initialise">
-<code class="descname">initialise</code><span class="sig-paren">(</span><em>bonfig</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field.initialise" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hook for controlling the initialisation of the field.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Store.is_with_proxy" title="bonfig.fields.Store.is_with_proxy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_with_proxy</span></code></a></dt>
+<dd><p class="first last">Check if <cite>self</cite> is an original <cite>Store</cite> or a proxy of another from a <cite>with</cite> statement.</p>
+</dd>
+<dt><a class="reference internal" href="#bonfig.fields.Store.name" title="bonfig.fields.Store.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></dt>
+<dd><p class="first last">Name of store.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="bonfig.fields.Store.is_with_proxy">
+<code class="descname">is_with_proxy</code><a class="headerlink" href="#bonfig.fields.Store.is_with_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <cite>self</cite> is an original <cite>Store</cite> or a proxy of another from a <cite>with</cite> statement.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="bonfig.fields.Field.name">
-<code class="descname">name</code><a class="headerlink" href="#bonfig.fields.Field.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the last item in path - i.e. the key used to fetch the parameter value from data Store</p>
+<dt id="bonfig.fields.Store.name">
+<code class="descname">name</code><a class="headerlink" href="#bonfig.fields.Store.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of store.</p>
+<p>For any <cite>Fields</cite> that ultimately belong to this store will have this value as <cite>Field.store_attr</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.Field">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>store=None</em>, <em>section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a parameter from your configuration. This object encapsulates how this parameter is serialised
+and deserialsed as well as how and where it’s fetched from.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>val</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object, optional</span></dt>
+<dd><p class="first last">value that will be inserted into <cite>store</cite> upon initialisation. (Note if set to <cite>None</cite>, no value will be added to
+the <cite>store</cite> rather that a value equal to <cite>None</cite>.)</p>
+</dd>
+<dt><strong>default</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object, optional</span></dt>
+<dd><p class="first last">Fallback value for this parameter if not found in <cite>store</cite>. If set to <cite>None</cite> then <cite>AttributeError</cite> will be
+raised.</p>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Key that is used to get value of <cite>Field</cite> as stored in <cite>store</cite>. Default behaviour is to take the name of the
+class attribute <cite>Field</cite> was set to (using <cite>__set_name__</cite>).</p>
+</dd>
+<dt><strong>store</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Store, str</span></dt>
+<dd><p class="first last"><cite>store</cite> that this <cite>Field</cite> belongs to/ looks into. Shouldn’t really be set directly, instead use <cite>Store.Field</cite> to
+create <cite>Field</cite> instances, as this will implicitly set the correct <cite>store</cite> value. If provided as a <cite>str</cite>, this
+will simply be turned into a <cite>Store</cite> object of the same name… so you might as well use the suggested route!</p>
+</dd>
+<dt><strong>section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Section, optional</span></dt>
+<dd><p class="first last"><cite>section</cite> that this <cite>Field</cite> belongs to. The <cite>section</cite> provides a set of ‘pre-keys’ that are looked up before
+<cite>name</cite> in <cite>store</cite> in order to fetch the <cite>Field</cite> ‘s value. Rather than setting directly, <cite>Section.Field</cite> should
+be used.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Todo</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field.keys" title="bonfig.fields.Field.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#bonfig.fields.Field.store_attr" title="bonfig.fields.Field.store_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></a></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.fields.Field.initialise" title="bonfig.fields.Field.initialise"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialise</span></code></a>(bonfig)</td>
+<td>Initialise <cite>Field</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.fields.Field.post_get" title="bonfig.fields.Field.post_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_get</span></code></a>(val)</td>
+<td>Apply function to values after they are fetched from data Store</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.fields.Field.pre_set" title="bonfig.fields.Field.pre_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_set</span></code></a>(val)</td>
+<td>Apply function to values before they are inserted into data Store</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.Field.initialise">
+<code class="descname">initialise</code><span class="sig-paren">(</span><em>bonfig</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise <cite>Field</cite>.</p>
+<p>This method is called during initialisation, and sets the value found within <cite>store</cite> at <cite>self.keys</cite> to
+<cite>self.val</cite>, unless <cite>self.val</cite> is <cite>None</cite>, in which case, nothing happens!</p>
+<p class="rubric">Notes</p>
+<p>This process takes place just after <cite>Bonfig.load</cite> and for each <cite>Field</cite> is finished before <cite>Bonfig.finalise</cite>.
+As such any values set from <cite>Bonfig.load</cite> are liable to be overwritten by <cite>initialise</cite> unless <cite>self.val=None</cite>,
+and in turn those values can be overwritten by <cite>Bonfig.finalise</cite> - but hopefully that’s not unexpected!</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Field.keys">
+<code class="descname">keys</code><a class="headerlink" href="#bonfig.fields.Field.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keys used to look up value within <cite>store</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field.post_get">
+<code class="descname">post_get</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field.post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values after they are fetched from data Store</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field.pre_set">
+<code class="descname">pre_set</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field.pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values before they are inserted into data Store</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Field.store_attr">
+<code class="descname">store_attr</code><a class="headerlink" href="#bonfig.fields.Field.store_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="bonfig.fields.BoolField">
-<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">BoolField</code><span class="sig-paren">(</span><em>val</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.BoolField" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">BoolField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>store=None</em>, <em>section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.BoolField" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialise</span></code>(bonfig)</td>
+<td>Initialise <cite>Field</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.fields.BoolField.pre_set" title="bonfig.fields.BoolField.pre_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_set</span></code></a>(v)</td>
+<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>post_get</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.BoolField.pre_set">
+<code class="descname">pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.BoolField.pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="bonfig.fields.IntField">
-<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">IntField</code><span class="sig-paren">(</span><em>val</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">IntField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>store=None</em>, <em>section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialise</span></code>(bonfig)</td>
+<td>Initialise <cite>Field</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.fields.IntField.post_get" title="bonfig.fields.IntField.post_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_get</span></code></a>(v)</td>
+<td>int(x=0) -&gt; integer int(x, base=10) -&gt; integer</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.fields.IntField.pre_set" title="bonfig.fields.IntField.pre_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_set</span></code></a>(v)</td>
+<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.IntField.post_get">
+<code class="descname">post_get</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField.post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>int(x=0) -&gt; integer
+int(x, base=10) -&gt; integer</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is a number, return x.__int__().  For floating point
+numbers, this truncates towards zero.</p>
+<p>If x is not a number or if base is given, then x must be a string,
+bytes, or bytearray instance representing an integer literal in the
+given base.  The literal can be preceded by ‘+’ or ‘-‘ and be surrounded
+by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+Base 0 means to interpret the base from the string as an integer literal.
+&gt;&gt;&gt; int(‘0b100’, base=0)
+4</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.IntField.pre_set">
+<code class="descname">pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField.pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="bonfig.fields.FloatField">
-<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">FloatField</code><span class="sig-paren">(</span><em>val</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">FloatField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>store=None</em>, <em>section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialise</span></code>(bonfig)</td>
+<td>Initialise <cite>Field</cite>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.fields.FloatField.post_get" title="bonfig.fields.FloatField.post_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_get</span></code></a>(v)</td>
+<td>float(x) -&gt; floating point number</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.fields.FloatField.pre_set" title="bonfig.fields.FloatField.pre_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_set</span></code></a>(v)</td>
+<td>str(object=’‘) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.FloatField.post_get">
+<code class="descname">post_get</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField.post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>float(x) -&gt; floating point number</p>
+<p>Convert a string or number to a floating point number, if possible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.FloatField.pre_set">
+<code class="descname">pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField.pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 
@@ -147,8 +518,12 @@ and deserialsed.</p>
 <li class="toctree-l1"><a class="reference internal" href="examples.html#writing-a-custom-field">Writing a custom Field</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html#more-hierarchical-structures">More hierarchical structures</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Bonfig</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#attributes">Attributes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#module-bonfig.fields">Hmmm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#attributes">Attributes</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#module-bonfig.fields">Hmmm</a><ul class="simple">
+</ul>
+</li>
 </ul>
 
 <div class="relations">
