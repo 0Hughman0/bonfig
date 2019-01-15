@@ -6,11 +6,14 @@
 Welcome to Bonfig's documentation!
 ==================================
 
+Good place to start is the :ref:`quickstart`
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
-   examples
+   quickstart
+   cheatsheet
    api
 
 

@@ -1,0 +1,18 @@
+.. code:: python
+
+    ...     def load(self, *args, **kwargs):
+    ...         for store_attr in self.__store_attrs__:
+    ...             setattr(self, store_attr, {})
+
+Then Bonfig 'initialises' our fields, which basically means insert any values into our stores.:
+
+.. code:: python
+
+    ...             for field in self.__fields__:
+    ...                 field.initialise(self)
+
+And if you've defined one that does something it'll:
+
+.. code:: python
+
+    ...         self.finalise()

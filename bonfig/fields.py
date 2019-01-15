@@ -1,18 +1,42 @@
 import functools
-
+import datetime
 
 class Store:
     """
-    Class for storing data of `Fields` owned by this store.
+    Placeholder class, allowing structure of `store` to be created in `Bonfig`.
+
+    Upon initialisation should be overwritten with an container object that supports `__getitem__` using `Bonfig.load`.
+
+    Any `Fields` ultimately belonging to a `Store` will look in the container that the `Store` object is overwritten
+    with during `Bonfig.load`.
+
+    Attributes
+    ----------
+    name : str, optional
+        Name of attribute that child `Fields` will look for their values in i.e. the value `Field.store_attr` is set to
+        for children. Default is to set to name that `Store` instance is assigned to (using `__set_name__` behaviour).
 
     Examples
     --------
-    >>> # Todo
+    >>> class Config(Bonfig):
+    ...     a = Store('my store')
+    ...     b = Store()
+    ...
+    ...     f1 = a.Field()
+    ...     f2 = b.Field()
+    >>> Config.a.name
+    'my store'
+    >>> Config.b.name
+    'b'
+    >>> Config.a.Field
+    functools.partial(<class 'bonfig.fields.Field'>, _store=<Store: my store>)
+    >>> Config.b.Section
+    functools.partial(<class 'bonfig.fields.Section'>, _store=<Store: b>)
     """
 
-    def __init__(self, _name=None):
-        self._name = _name
-        self.Section = functools.partial(Section, store=self)
+    def __init__(self, name=None):
+        self._name = name
+        self.Section = functools.partial(Section, _store=self)
 
         self._with_owner = None
 
@@ -48,7 +72,7 @@ class Store:
 
     def __getattr__(self, item):
         if item in fields.keys():
-            return functools.partial(fields[item], store=self)
+            return functools.partial(fields[item], _store=self)
         raise AttributeError(item)
 
     def __enter__(self):
@@ -78,7 +102,7 @@ def _dict_keys_get(d, keys):
     return d
 
 
-def make_sub_field(name, post_get, pre_set, bases):
+def make_sub_field(name, bases, post_get=None, pre_set=None):
     """
     Factory function for producing `Field`-like classes.
 
@@ -100,8 +124,13 @@ def make_sub_field(name, post_get, pre_set, bases):
 
     Example
     -------
-    >>> IntField = make_sub_field('IntField', int, str)
+    >>> IntField = make_sub_field('IntField', int, str, Field)
     """
+    if pre_set is None:
+        pre_set = lambda v: v
+    if post_get is None:
+        post_get = lambda v: v
+
     cls = type(name, (bases,), {})
     cls.post_get = lambda s, v: post_get(v)
     cls.post_get.__doc__ = post_get.__doc__
@@ -123,10 +152,6 @@ class FieldDict(dict):
         """
         Add a field_cls class to a field_cls dict. This method implicitly uses `field_cls.__name__` as the key.
 
-        Example
-        -------
-        >>> # Todo
-
         Parameters
         ----------
         field_cls : cls
@@ -136,19 +161,35 @@ class FieldDict(dict):
         -------
         field_cls : cls
             Returns the same field_cls instance back. This allows the method to be used as a class decorator!
+
+        Examples
+        --------
+        >>> @fields.add
+        >>> class ListField(Field):
+        ...
+        ...     def __init__(self, val=None, default=None, name=None, *, _store=None, _section=None, sep=', '):
+        ...         super().__init__(val, default=default, name=name, _store=_store, _section=_section)
+        ...         self.sep = sep
+        ...
+        ...         def post_get(self, val):
+        ...             return val.split(self.sep)
+        ...
+        ...         def pre_set(self, val):
+        ...             return self.sep.join(val)
+
         """
         self[field_cls.__name__] = field_cls
         return field_cls
 
-    def make_quick(self, name, post_get, pre_set):
+    def make_quick(self, name, post_get=None, pre_set=None):
         """
         Factory function for producing `Field` -like classes.
 
         Parameters
         ----------
-        post_get : func
+        post_get : func, optional
             Function to apply to values just after they are fetched from the data Store.
-        pre_set : func
+        pre_set : func, optional
             Function to apply to values just before they are inserted into the data Store.
         bases : cls
             Class for the newly created class to subclass (defaults to `Field`).
@@ -162,11 +203,11 @@ class FieldDict(dict):
         ----
         Created classes are implicitly inserted into the FieldDict
 
-        Example
-        -------
+        Examples
+        --------
         >>> IntField = fields.make_quick('IntField', int, str)
         """
-        cls = make_sub_field(name, post_get, pre_set, self.bases)
+        cls = make_sub_field(name, self.bases, post_get, pre_set)
         self.add(cls)
         return cls
 
@@ -187,36 +228,52 @@ class Field:
     name : str, optional
         Key that is used to get value of `Field` as stored in `store`. Default behaviour is to take the name of the
         class attribute `Field` was set to (using `__set_name__`).
-    store : Store, str
+    _store : Store
         `store` that this `Field` belongs to/ looks into. Shouldn't really be set directly, instead use `Store.Field` to
-        create `Field` instances, as this will implicitly set the correct `store` value. If provided as a `str`, this
-        will simply be turned into a `Store` object of the same name... so you might as well use the suggested route!
-    section : Section, optional
+        create `Field` instances.
+    _section : Section, optional
         `section` that this `Field` belongs to. The `section` provides a set of 'pre-keys' that are looked up before
         `name` in `store` in order to fetch the `Field` 's value. Rather than setting directly, `Section.Field` should
         be used.
 
     Examples
     --------
-    >>> # Todo
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...
+    ...     f1 = s.Field('first field')
+    ...     f2 = s.Field()
+    ...     f3 = s.Field(default='f3 not found')
+    ...     f4 = s.Field('fourth field', name='field1')
+    ...
+    ...     def load(self):
+    ...         self.s = {}
+    >>> c = Config()
+    >>> c.f1
+    'first field'
+    >>> c.f2
+    KeyError: 'f2'
+    >>> c.f3
+    'f3 not found'
+    >>> c.f4
+    'forth field'
+    >>> c.s
+    {'f1': 'first field', 'field1': 'fourth field'}
     """
 
-    def __init__(self, val=None, default=None, name=None, *, store=None, section=None):
+    def __init__(self, val=None, default=None, name=None, *, _store=None, _section=None):
         self.val = val
         self.name = name
-
-        if isinstance(store, str):
-            store = Store(store)
-        if store is None:
-            raise ValueError("Parameter store cannot be None")
-
-        self.store = store
-
         self.default = default
 
-        if section is not None and not isinstance(section, Section):
+        if _store is None:
+            raise ValueError("Parameter store cannot be None")
+
+        self.store = _store
+
+        if _section is not None and not isinstance(_section, Section):
             raise ValueError("Section must be None, or an instance of Section")
-        self.section = section
+        self.section = _section
 
     def __set_name__(self, owner, name):
         if self.name is None:
@@ -243,10 +300,6 @@ class Field:
         if self.section:
             return self.section.keys + [self.name]
         return [self.name]
-
-    def _check_lock(self, bonfig):
-        if bonfig.locked:
-            raise RuntimeError("Attempting to mutate a locked Bonfig")
 
     def initialise(self, bonfig):
         """Initialise `Field`.
@@ -277,19 +330,26 @@ class Field:
         setattr(bonfig, self.store_attr, dd)
         self._set_value(self._get_store(bonfig), self.pre_set(self.val))
 
-    def _get_value(self, d):
+    def _get_value(self, store):
         """
         Hook to allow you to control how the value is looked up in the data Store.
         """
         try:
-            return _dict_keys_get(d, self.keys)
+            return _dict_keys_get(store, self.keys)
         except KeyError as e:
             if self.default is not None:
                 return self.default
             raise e
+        except TypeError:
+            raise AttributeError("Store attribute {} is not subscriptable,"
+                                 " have you forgot to overwrite its value?".format(store))
 
     def _set_value(self, store, value):
-        _dict_keys_get(store, self.keys[:-1])[self.name] = value
+        try:
+            _dict_keys_get(store, self.keys[:-1])[self.name] = value
+        except TypeError:
+            raise AttributeError("Store attribute {} does not support item assigment,"
+                                 " have you forgot to overwrite its value?".format(store))
 
     def pre_set(self, val):
         """
@@ -310,15 +370,17 @@ class Field:
         return self.post_get(self._get_value(store))
 
     def __set__(self, bonfig, value):
-        self._check_lock(bonfig)
+        if bonfig.locked:
+            raise AttributeError("Attempting to mutate attribute {} on a locked Bonfig".format(self.name))
         store = self._get_store(bonfig)
         self._set_value(store, self.pre_set(value))
 
     def __repr__(self):
-        return "<{} stored in {}: val={}, default={}>".format(self.__class__.__name__,
-                                                              self.store_attr,
-                                                              self.val,
-                                                              self.default)
+        return "<{} '{}' stored in {}: val={}, default={}>".format(self.__class__.__name__,
+                                                                   self.name,
+                                                                   self.store_attr,
+                                                                   self.val,
+                                                                   self.default)
 
 
 fields = FieldDict(Field)
@@ -327,62 +389,101 @@ FloatField = fields.make_quick('FloatField', float, str)
 BoolField = fields.make_quick('BoolField', str_bool, str)
 
 
+@fields.add
+class DatetimeField(Field):
+    """
+    Field that serialises and
+
+    """
+
+    def __init__(self, val=None, default=None, name=None, fmt=None, *, _store=None, _section=None):
+        super().__init__(val, default, name, _store=_store, _section=_section)
+        if fmt is None:
+            raise ValueError("fmt can't be None")
+        self.fmt = fmt
+
+    def pre_set(self, val):
+        return val.strftime(self.fmt)
+
+    def post_get(self, val):
+        return datetime.datetime.strptime(val, self.fmt)
+
+
 class Section:
+    """
+    Convenience class for building up multi-level `Bonfigs` s.
 
-    field_types = fields
+    Any `Field` s created from `Section.Field` implicitly have the `Field.section` attribute set to that `Section`.
 
-    def __init__(self, name=None, *, supsection=None, store=None):
-        """
-        Convenience class for building up multi-level `Bonfigs` s.
+    Parameters
+    ----------
+    name : str, optional
+        name of Section. Default behaviour is to take the name of the class attribute `Section` was set to (using
+        `__set_name__`).
+    _supsection : Section, optional
+        Section that owns this section. Rather than setting directly, this should be done by creating this `Section`
+        instance using `supsection.Section`.
+    _store : Store
+        Store that section belongs to.
 
-        Any `Field` s created from `Section.Field` implicitly have the `Field.section` attribute set to that `Section`.
+    Examples
+    --------
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...
+    ...     A = s.Section()
+    ...     Af = A.Field('A - f')
+    ...
+    ...     B = A.SubSection('B within A')
+    ...     Bf = B.Field('B - f')
+    ...
+    ...     def load(self):
+    ...         self.s = {}
+    >>>
+    >>> c = Config()
+    >>> c.A.keys
+    ['sec_A']
+    >>> c.B.keys
+    ['A', 'B within A']
+    >>> c.Af
+    'A - f'
+    >>> Config.Af.keys
+    ['A', 'Af']
+    >>> Config.Bf.keys
+    ['A', 'B within A', 'Bf']
+    >>> c.s
+    {'A':
+    {
+    'Af': 'A - f',
+    'B within A':
+        {
+        'Bf': 'B - f'
+        }
+    }
+    }
+    """
 
-        Parameters
-        ----------
-        name : str, optional
-            name of Section. Default behaviour is to take the name of the class attribute `Section` was set to (using
-            `__set_name__`).
-        supsection : Section, optional
-            Section that owns this section. Rather than setting directly, this should be done by creating this `Section`
-            instance using `supsection.Section`.
-        store : Store
-
-        Examples
-        --------
-        >>> # Todo
-        """
-        if isinstance(store, str):
-            store = Store(store)
-        elif store is None:
-            raise ValueError("Store must be set for Sections.")
-
-        self.store = store
-
+    def __init__(self, name=None, *, _supsection=None, _store=None):
         self._name = name
 
-        if isinstance(supsection, str):
-            supsection = [supsection]
+        self.supsection = _supsection
+        if _store is None:
+            raise ValueError("Store must be set for Sections.")
 
-        if isinstance(supsection, (list, tuple)):
-            if len(supsection) == 1:
-                supsection = Section(store=store, supsection=None, name=supsection[0])
-            else:
-                supsection = Section(store=store, supsection=supsection[:-1], name=supsection[-1])
-
-        self.supsection = supsection
-
-        self.SubSection = functools.partial(Section, store=store, supsection=self)
+        self.store = _store
 
         self._with_owner = None
+
+        self.SubSection = functools.partial(Section, _store=_store, _supsection=self)
 
     @classmethod
     def _from_with(cls, with_owner):
         """Internal method for creating a 'proxy' of a `Section` object for use in `with` blocks.
 
         """
-        o = cls(supsection=with_owner.supsection,
-                name=with_owner.name,
-                store=with_owner.store)
+        o = cls(name=with_owner.name,
+                _store=with_owner.store,
+                _supsection=with_owner.supsection)
         o._with_owner = with_owner
         return o
 
@@ -418,7 +519,7 @@ class Section:
 
     def __getattr__(self, item):
         if item in fields.keys():
-            return functools.partial(fields[item], section=self, store=self.store)
+            return functools.partial(fields[item], _section=self, _store=self.store)
         raise AttributeError(item)
 
     def __enter__(self):
@@ -431,4 +532,4 @@ class Section:
         if not self.is_with_proxy:
             return "<Section: {}>".format(self.keys)
         else:
-            return "<Section: {} (with proxy)".format(self.keys)
+            return "<Section: {} (with proxy called {})>".format(self.keys, self._name)

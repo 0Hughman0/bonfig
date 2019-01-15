@@ -1,6 +1,4 @@
 """
-(c) Hugh Ramsden 2018
-
 Bonfig
 ------
 An alternative, more beautiful way to build configs!
@@ -14,6 +12,5 @@ fields : FieldDict
 """
 
 from .core import Bonfig, Store
-from bonfig.fields import Field, fields, Section
 
 __version__ = "0.2"

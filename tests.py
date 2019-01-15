@@ -1,11 +1,12 @@
 import pytest
 
-from bonfig import Bonfig, Store, Field, Section, fields
+from bonfig import Bonfig, Store
+from bonfig.fields import fields, Field
 
 
 def test_section():
 
-    class ConfigA(Bonfig):
+    class Config(Bonfig):
         s = Store()
         A = s.Section()
         B = s.Section()
@@ -18,82 +19,24 @@ def test_section():
         c = C.Field('Cc')
         d = D.Field('Dd')
 
-        def load(self):
-            self.s = {}
+    c = Config()
 
-    class ConfigB(Bonfig):
-        s = Store()
+    assert c.A.keys == ['A']
+    assert c.A.name == 'A'
 
-        A = s.Section('A')
-        B = s.Section('B')
-        C = s.Section('C', supsection='B')
-        D = s.Section('D', supsection=('B', 'C'))
+    assert c.B.keys == ['B']
+    assert c.B.name == 'B'
 
-        a = A.Field('Aa')
-        b = B.Field('Bb')
-        c = C.Field('Cc')
-        d = D.Field('Dd')
+    assert c.C.keys == ['B', 'C']
+    assert c.C.name == 'C'
 
-        def load(self, *args, **kwargs):
-            self.s = {}
+    assert c.D.keys == ['B', 'C', 'D']
+    assert c.D.name == 'D'
 
-    ca = ConfigA()
-    cb = ConfigB()
-
-    for c in (ca, cb):
-        assert c.A.keys == ['A']
-        assert c.A.name == 'A'
-
-        assert c.B.keys == ['B']
-        assert c.B.name == 'B'
-
-        assert c.C.keys == ['B', 'C']
-        assert c.C.name == 'C'
-
-        assert c.D.keys == ['B', 'C', 'D']
-        assert c.D.name == 'D'
-
-        assert c.s == {'A': {'a': 'Aa'},
-                       'B': {'b': 'Bb',
-                             'C': {'c':'Cc',
-                                   'D': {'d': 'Dd'}}}}
-
-
-def test_set_name_func_field():
-
-    class TestBonfigA(Bonfig):
-
-        a_ = Field(1, store='d', name='a')
-        b_ = Field(2, store='d', name='b', section=Section(store='d', name='Sec A'))
-        c_ = Field(3, store='d', name='c', section=Section(store='d', supsection='Sec A', name='Sub B'))
-
-        def load(self):
-            self.d = {}
-
-    class TestBonfigB(Bonfig):
-        d = Store()
-
-        a = d.Field(1)
-
-        s_a = d.Section(name='Sec A')
-        b = s_a.Field(2)
-
-        sub_b = s_a.SubSection(name='Sub B')
-        c = sub_b.Field(3)
-
-        def load(self):
-            self.d = {}
-
-    a = TestBonfigA()
-    b = TestBonfigB()
-
-    assert a.d['a'] == b.d['a']
-    assert a.d['Sec A']['b'] == b.d['Sec A']['b']
-    assert a.d['Sec A']['Sub B']['c'] == b.d['Sec A']['Sub B']['c']
-
-    assert a.a_ == b.a
-    assert a.b_ == b.b
-    assert a.c_ == b.c
+    assert c.s == {'A': {'a': 'Aa'},
+                   'B': {'b': 'Bb',
+                         'C': {'c':'Cc',
+                               'D': {'d': 'Dd'}}}}
 
 
 def test_lock():
@@ -101,12 +44,9 @@ def test_lock():
         d = Store()
         a = d.Field(1)
 
-        def load(self):
-            self.d = {}
-
     c = TestBonfigA(locked=True)
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(AttributeError):
         c.a = 123
 
     c.unlock()
@@ -116,7 +56,7 @@ def test_lock():
 
     c.lock()
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(AttributeError):
         c.a = 1
 
     assert c.locked is True
@@ -164,8 +104,8 @@ def test_custom_field():
     @fields.add
     class ListField(Field):
 
-        def __init__(self, val=None, store=None, default=None, section=None, name=None, sep=', '):
-            super().__init__(val, store=store, default=default, section=section, name=name)
+        def __init__(self, val=None, default=None, name=None, *, _store=None, _section=None, sep=', '):
+            super().__init__(val, default=default, name=name, _store=_store, _section=_section)
             self.sep = sep
 
         def post_get(self, val):
@@ -182,9 +122,6 @@ def test_custom_field():
         odd = d.ListField(todd)
         lists = d.Section()
         even = lists.ListField(val=teven)
-
-        def load(self, *args, **kwargs):
-            self.d = {}
 
     c = TestBonfig()
 
@@ -220,9 +157,6 @@ def test_inherit():
         d = Store()
         a = d.Field('a')
 
-        def load(self):
-            self.d = {}
-
     class SubConfig(BaseConfig):
         b = BaseConfig.d.Field('b')
 
@@ -247,7 +181,7 @@ def test_load():
             self.d = {'a': args[0],
                       'b': kwargs['b']}
 
-    c = TestConfig(False, 'one', b='two')
+    c = TestConfig('one', b='two')
 
     assert c.a == 'one'
     assert c.b == 'two'
@@ -264,19 +198,12 @@ def test_withmad():
             with section as sec:
                 b = sec.Field('B')
 
-        def load(self):
-            self.store = {}
-
     class B(Bonfig):
         with Store() as store:
             a = store.Field('A')
 
             with store.Section() as section:
                 b = section.Field('B')
-
-        def load(self):
-            self.store = {}
-
 
     class C(Bonfig):
         store = Store()
@@ -286,16 +213,13 @@ def test_withmad():
         section = store.Section()
         b = section.Field('B')
 
-        def load(self):
-            self.store = {}
-
     ca, cb, cc = A(), B(), C()
 
     cs = [ca, cb, cc]
     Cs = [A, B, C]
 
     for c, C in zip(cs, Cs):
-        assert c.__fields__.keys() == {'store'}
+        assert c.__store_attrs__ == {'store'}
         assert c.a == 'A'
         assert c.b == 'B'
         assert C.a.keys == ['a']

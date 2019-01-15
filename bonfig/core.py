@@ -19,7 +19,8 @@ class BonfigType(type):
         """Creates Bonfig class object
 
         """
-        attrs['__fields__'] = collections.defaultdict(list)
+        attrs['__fields__'] = [] #
+        attrs['__store_attrs__'] = set() # collections.defaultdict(list)
         return super().__new__(cls, name, bases, attrs, **kwargs)
 
     def __init__(cls, name, bases, attrs, **kwargs):
@@ -31,19 +32,24 @@ class BonfigType(type):
                 if isinstance(v, (Field, Store, Section)):
                     v.__set_name__(cls, k)
 
-        fields = collections.defaultdict(list)
+        fields = []
+        stores = set()
 
         # Allow for inheritance
         for attr in itertools.chain(*(base.__dict__.values() for base in bases)):
             if isinstance(attr, Field):
-                fields[attr.store_attr].append(attr)
+                fields.append(attr)
+                stores.add(attr.store_attr)
+
 
         # Overwrites any base class values.
         for attr in attrs.values():
             if isinstance(attr, Field):
-                fields[attr.store_attr].append(attr)
+                fields.append(attr)
+                stores.add(attr.store_attr)
 
-        attrs['__fields__'].update(fields)
+        attrs['__fields__'].extend(fields)
+        attrs['__store_attrs__'].update(stores)
         super().__init__(name, bases, attrs)
 
 
@@ -73,18 +79,16 @@ class Bonfig(metaclass=BonfigType):
 
     Examples
     --------
-    # Todo
+
     """
 
-    def __init__(self, locked=False, *args, **kwargs):
+    def __init__(self, *args, locked=True, **kwargs):
         self._locked = False
 
         self.load(*args, **kwargs)
 
-        for store_attr, field_list in self.__fields__.items():
-
-            for field in field_list:
-                field.initialise(self)
+        for field in self.__fields__:
+            field.initialise(self)
 
         self.finalise()
 
@@ -109,7 +113,8 @@ class Bonfig(metaclass=BonfigType):
         **kwargs
             kwargs from `__init__`
         """
-        pass
+        for store_attr in self.__store_attrs__:
+            setattr(self, store_attr, {})
 
     def finalise(self):
         """
@@ -123,7 +128,7 @@ class Bonfig(metaclass=BonfigType):
         --------
         # Todo
         """
-        pass
+        return
 
     @property
     def locked(self):

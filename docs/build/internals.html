@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Python Module Index &#8212; Bonfig 0.2 documentation</title>
+    <title>&lt;no title&gt; &#8212; Bonfig 0.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -16,14 +16,11 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-
 
   </head><body>
   
@@ -35,29 +32,20 @@
 
           <div class="body" role="main">
             
-
-   <h1>Python Module Index</h1>
-
-   <div class="modindex-jumpbox">
-   <a href="#cap-b"><strong>b</strong></a>
-   </div>
-
-   <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-b"><td></td><td>
-       <strong>b</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <a href="api.html#module-bonfig"><code class="xref">bonfig</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api.html#module-bonfig.fields"><code class="xref">bonfig.fields</code></a></td><td>
-       <em></em></td></tr>
-   </table>
+  <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="o">...</span>         <span class="k">for</span> <span class="n">store_attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__store_attrs__</span><span class="p">:</span>
+<span class="o">...</span>             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_attr</span><span class="p">,</span> <span class="p">{})</span>
+</pre></div>
+</div>
+<p>Then Bonfig ‘initialises’ our fields, which basically means insert any values into our stores.:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__fields__</span><span class="p">:</span>
+<span class="o">...</span>                 <span class="n">field</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And if you’ve defined one that does something it’ll:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>         <span class="bp">self</span><span class="o">.</span><span class="n">finalise</span><span class="p">()</span>
+</pre></div>
+</div>
 
 
           </div>
@@ -121,6 +109,9 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
+      |
+      <a href="_sources/internals.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     
