@@ -1,6 +1,4 @@
-import itertools
 import sys
-import collections
 
 from bonfig.fields import Field, Store, Section
 
@@ -16,40 +14,32 @@ class BonfigType(type):
     """
 
     def __new__(cls,  name, bases, attrs, **kwargs):
-        """Creates Bonfig class object
+        """Creates Bonfig class type
 
         """
-        attrs['__fields__'] = [] #
-        attrs['__store_attrs__'] = set() # collections.defaultdict(list)
+        attrs['__fields__'] = set()
+        attrs['__store_attrs__'] = set()
         return super().__new__(cls, name, bases, attrs, **kwargs)
 
     def __init__(cls, name, bases, attrs, **kwargs):
-        """Initialises Bonfig class object.
+        """Initialises Bonfig class type.
 
+        Uses built-in `dir` to get attributes of base-classes.
         """
         if sys.version_info[1] < 6:  # Backport of __set_name__ from 3.6 :)
             for k, v in attrs.items():
                 if isinstance(v, (Field, Store, Section)):
                     v.__set_name__(cls, k)
 
-        fields = []
-        stores = set()
+        fields = attrs['__fields__']
+        stores = attrs['__store_attrs__']
 
-        # Allow for inheritance
-        for attr in itertools.chain(*(base.__dict__.values() for base in bases)):
+        for attr_name in dir(cls):
+            attr = getattr(cls, attr_name)
             if isinstance(attr, Field):
-                fields.append(attr)
+                fields.add(attr)
                 stores.add(attr.store_attr)
 
-
-        # Overwrites any base class values.
-        for attr in attrs.values():
-            if isinstance(attr, Field):
-                fields.append(attr)
-                stores.add(attr.store_attr)
-
-        attrs['__fields__'].extend(fields)
-        attrs['__store_attrs__'].update(stores)
         super().__init__(name, bases, attrs)
 
 
@@ -74,8 +64,10 @@ class Bonfig(metaclass=BonfigType):
 
     Attributes
     ----------
-    __fields__ : defaultdict
-        a `defaultdict` containing all the classes `Field` attributes, grouped by `store_attr`
+    __fields__ : set
+        a `set` containing all the classes `Field` attributes.
+    __store_attrs__ : set
+        a `set` containing the names of each store attribute for that class
 
     Examples
     --------

@@ -1,5 +1,18 @@
+"""
+# Todo - Reimplement the locking mechanism to work on stores instead - don't think I'll regret it.
+
+
+Attributes
+----------
+fields : FieldDict
+    A global `dict` -like object that stores all of the field classes. This dict is used to provide stores and sections
+    with access to field classes, as such, add to this global dict to make custom fields available in that context. (By
+    default includes `Field`, `IntField`, `FloatField`, `BoolField` and `DatetimeField`.
+"""
+
 import functools
 import datetime
+
 
 class Store:
     """
@@ -271,8 +284,6 @@ class Field:
 
         self.store = _store
 
-        if _section is not None and not isinstance(_section, Section):
-            raise ValueError("Section must be None, or an instance of Section")
         self.section = _section
 
     def __set_name__(self, owner, name):
@@ -326,7 +337,7 @@ class Field:
                 d[key] = dtype()
                 d = d[key]
             except TypeError:
-                raise ValueError("Store attribute {} is not subscriptable, have you forgot to overwrite its value?".format(d))
+                raise TypeError("Store attribute {} is not subscriptable, have you forgot to overwrite its value?".format(d))
         setattr(bonfig, self.store_attr, dd)
         self._set_value(self._get_store(bonfig), self.pre_set(self.val))
 
@@ -341,14 +352,14 @@ class Field:
                 return self.default
             raise e
         except TypeError:
-            raise AttributeError("Store attribute {} is not subscriptable,"
+            raise TypeError("Store attribute {} is not subscriptable,"
                                  " have you forgot to overwrite its value?".format(store))
 
     def _set_value(self, store, value):
         try:
             _dict_keys_get(store, self.keys[:-1])[self.name] = value
         except TypeError:
-            raise AttributeError("Store attribute {} does not support item assigment,"
+            raise TypeError("Store attribute {} does not support item assigment,"
                                  " have you forgot to overwrite its value?".format(store))
 
     def pre_set(self, val):
@@ -434,7 +445,7 @@ class Section:
     ...     A = s.Section()
     ...     Af = A.Field('A - f')
     ...
-    ...     B = A.SubSection('B within A')
+    ...     B = A.Section('B within A')
     ...     Bf = B.Field('B - f')
     ...
     ...     def load(self):
@@ -474,7 +485,7 @@ class Section:
 
         self._with_owner = None
 
-        self.SubSection = functools.partial(Section, _store=_store, _supsection=self)
+        self.Section = functools.partial(Section, _store=_store, _supsection=self)
 
     @classmethod
     def _from_with(cls, with_owner):

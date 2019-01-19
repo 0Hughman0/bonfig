@@ -33,20 +33,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-bonfig">
-<span id="api"></span><h1>API<a class="headerlink" href="#module-bonfig" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="bonfig">
+  <div class="section" id="api">
+<span id="id1"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-bonfig"></span><div class="section" id="bonfig">
 <h2>Bonfig<a class="headerlink" href="#bonfig" title="Permalink to this headline">¶</a></h2>
 <p>An alternative, more beautiful way to build configs!</p>
-</div>
-<div class="section" id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h2>
-<dl class="docutils">
-<dt>fields <span class="classifier-delimiter">:</span> <span class="classifier">FieldDict</span></dt>
-<dd>A global <cite>dict</cite> -like object that stores all of the field classes. This dict is used to provide stores and sections
-with access to field classes, as such, add to this global dict to make custom fields available in that context. (By
-default includes <cite>Field</cite>, <cite>IntField</cite>, <cite>FloatField</cite> and <cite>BoolField</cite>.</dd>
-</dl>
 <dl class="class">
 <dt id="bonfig.Bonfig">
 <em class="property">class </em><code class="descclassname">bonfig.</code><code class="descname">Bonfig</code><span class="sig-paren">(</span><em>*args</em>, <em>locked=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig" title="Permalink to this definition">¶</a></dt>
@@ -59,8 +50,11 @@ default includes <cite>Field</cite>, <cite>IntField</cite>, <cite>FloatField</ci
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>__fields__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">defaultdict</span></dt>
-<dd><p class="first last">a <cite>defaultdict</cite> containing all the classes <cite>Field</cite> attributes, grouped by <cite>store_attr</cite></p>
+<dt><strong>__fields__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">set</span></dt>
+<dd><p class="first last">a <cite>set</cite> containing all the classes <cite>Field</cite> attributes.</p>
+</dd>
+<dt><strong>__store_attrs__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">set</span></dt>
+<dd><p class="first last">a <cite>set</cite> containing the names of each store attribute for that class</p>
 </dd>
 </dl>
 </td>
@@ -201,9 +195,19 @@ with during <cite>Bonfig.load</cite>.</p>
 <h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="note">
 <h3>NOTE<a class="headerlink" href="#note" title="Permalink to this headline">¶</a></h3>
-<p>You will notice in the <cite>Field</cite> and <cite>Section</cite> parameters for <cite>__init__</cite> which start with <cite>_</cite>, these parameters
-are not intended to be set directly. Instead these classes should be accessed by either parent <cite>Stores</cite> or <cite>Sections</cite>.</p>
-<span class="target" id="module-bonfig.fields"></span><dl class="class">
+<p>You will notice in the <cite>Field</cite> and <cite>Section</cite> parameters for <cite>__init__</cite> which start with <cite>‘_’</cite>, these arguments
+are not intended to be set directly. Instead these classes should be accessed by either parent <cite>Stores</cite> or <cite>Sections</cite>,
+and these arguments will be implicitly set.</p>
+<span class="target" id="module-bonfig.fields"></span><p># Todo - Reimplement the locking mechanism to work on stores instead - don’t think I’ll regret it.</p>
+<div class="section" id="attributes">
+<h4>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt>fields <span class="classifier-delimiter">:</span> <span class="classifier">FieldDict</span></dt>
+<dd>A global <cite>dict</cite> -like object that stores all of the field classes. This dict is used to provide stores and sections
+with access to field classes, as such, add to this global dict to make custom fields available in that context. (By
+default includes <cite>Field</cite>, <cite>IntField</cite>, <cite>FloatField</cite>, <cite>BoolField</cite> and <cite>DatetimeField</cite>.</dd>
+</dl>
+<dl class="class">
 <dt id="bonfig.fields.Section">
 <em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Section</code><span class="sig-paren">(</span><em>name=None</em>, <em>*</em>, <em>_supsection=None</em>, <em>_store=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Section" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience class for building up multi-level <cite>Bonfigs</cite> s.</p>
@@ -236,7 +240,7 @@ instance using <cite>supsection.Section</cite>.</p>
 <span class="gp">... </span>    <span class="n">A</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Section</span><span class="p">()</span>
 <span class="gp">... </span>    <span class="n">Af</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;A - f&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
-<span class="gp">... </span>    <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">SubSection</span><span class="p">(</span><span class="s1">&#39;B within A&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span><span class="s1">&#39;B within A&#39;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">Bf</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;B - f&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -605,6 +609,7 @@ and in turn those values can be overwritten by <cite>Bonfig.finalise</cite> - bu
 </div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -629,13 +634,7 @@ and in turn those values can be overwritten by <cite>Bonfig.finalise</cite> - bu
 <li class="toctree-l1"><a class="reference internal" href="cheatsheet.html">Cheat Sheet</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bonfig">Bonfig</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#attributes">Attributes</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#fields">Fields</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#note">NOTE</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#fields">Fields</a></li>
 </ul>
 </li>
 </ul>

@@ -14,7 +14,7 @@ setup(name='bonfig',
     author='Hugh Ramsden',
     url='https://github.com/0Hughman0/bonfig',
     download_url="https://github.com/0Hughman0/bonfig/archive/{}.tar.gz".format(__version__),
-    py_packages=['bonfig', 'bonfig.stores', 'bonfig.fields'],
+    py_packages=['bonfig', 'bonfig.fields'],
     license='MIT',
     python_requires=">=3.4",
     test_requires="pytest")

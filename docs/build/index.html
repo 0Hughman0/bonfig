@@ -34,34 +34,40 @@
           <div class="body" role="main">
             
   <div class="section" id="welcome-to-bonfig-s-documentation">
-<h1>Welcome to Bonfig’s documentation!<a class="headerlink" href="#welcome-to-bonfig-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Good place to start is the <span class="xref std std-ref">quickstart</span></p>
+<span id="home"></span><h1>Welcome to Bonfig’s documentation!<a class="headerlink" href="#welcome-to-bonfig-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Bonfig</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">configparser</span>
+<span class="k">class</span> <span class="nc">INIConfig</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
+    <span class="n">SECTION</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">Section</span><span class="p">()</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">SECTION</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="s2">&quot;[SECTION]</span><span class="se">\n</span><span class="s2">A = 3.14159&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Stop writing your configurations as dictionaries and strange floating dataclasses, make them <cite>Bonfigs</cite> and make use of
+a whole bunch of great features:</p>
+<ul class="simple">
+<li>Declare your configurations as easy to read classes.</li>
+<li>Get all the power that comes with classes built into your configurations - polymorphism, custom methods and custom initialisation.</li>
+<li>Safety considered with configuration lock-ability.</li>
+<li>Ready made serialisation and deserialisation with readmade custom <cite>Fields</cite> - <cite>IntField</cite>, <cite>FloatField</cite>, <cite>BoolField</cite> and <cite>DatetimeField</cite>.</li>
+</ul>
+<p>Sound good? Get started at <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a>.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#getting-started">Getting Started</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#basic-bonfig">Basic Bonfig</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#using-different-stores">Using Different Stores</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#sections">Sections</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#typed-fields">Typed Fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#bonfig-initialisation-arguments">Bonfig Initialisation Arguments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="quickstart.html#going-easier-on-the-eyes">Going Easier on the Eyes</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#getting-started">Getting Started</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cheatsheet.html">Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#bonfig">Bonfig</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#attributes">Attributes</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#fields">Fields</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api.html#note">NOTE</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#fields">Fields</a></li>
 </ul>
 </li>
 </ul>

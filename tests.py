@@ -1,7 +1,8 @@
 import pytest
+import datetime
 
 from bonfig import Bonfig, Store
-from bonfig.fields import fields, Field
+from bonfig.fields import fields, Field, Section
 
 
 def test_section():
@@ -11,8 +12,8 @@ def test_section():
         A = s.Section()
         B = s.Section()
 
-        C = B.SubSection()
-        D = C.SubSection()
+        C = B.Section()
+        D = C.Section()
 
         a = A.Field('Aa')
         b = B.Field('Bb')
@@ -154,21 +155,41 @@ def test_ini():
 
 def test_inherit():
     class BaseConfig(Bonfig):
-        d = Store()
-        a = d.Field('a')
+        s = Store()
+        a = s.Field('a')
+        b = s.Field('b', name='manual b')
 
-    class SubConfig(BaseConfig):
-        b = BaseConfig.d.Field('b')
+    class AddFields(BaseConfig):
+        c = BaseConfig.s.Field('c')
+        d = BaseConfig.s.Field('d')
 
-    c = SubConfig()
+    c = AddFields()
     assert c.a == 'a'
     assert c.b == 'b'
+    assert c.c == 'c'
+    assert c.d == 'd'
 
-    class OverloadConfig(SubConfig):
-        b = SubConfig.d.Field('not b')
+    class OverwriteFields(AddFields):
+        a = BaseConfig.s.Field('not a')
+        c = AddFields.s.Field('not c')
 
-    c = OverloadConfig()
-    assert c.b == 'not b'
+    c = OverwriteFields()
+    assert c.a == 'not a'
+    assert c.b == 'b'
+    assert c.c == 'not c'
+    assert c.d == 'd'
+
+    assert OverwriteFields.__fields__ == set((OverwriteFields.a, BaseConfig.b, OverwriteFields.c, AddFields.d))
+
+    class SecondInherit(OverwriteFields):
+        c = BaseConfig.s.Field('still not c')
+
+    c = SecondInherit()
+    assert c.a == 'not a'
+    assert c.b == 'b'
+    assert c.c == 'still not c'
+    assert c.d == 'd'
+    assert SecondInherit.__fields__ == set((OverwriteFields.a, BaseConfig.b, SecondInherit.c, AddFields.d))
 
 
 def test_load():
@@ -224,3 +245,55 @@ def test_withmad():
         assert c.b == 'B'
         assert C.a.keys == ['a']
         assert C.b.keys == ['section', 'b']
+
+
+def test_special_fields():
+    class Config(Bonfig):
+        s = Store()
+        A = s.Field('a')
+        B = s.IntField(100)
+        C = s.FloatField(1.75)
+        D = s.BoolField(False)
+        E = s.DatetimeField(datetime.datetime(2010, 10, 10), fmt='%d/%m/%y')
+
+    c = Config()
+
+    assert c.A == 'a'
+    assert c.B == 100
+    assert c.C == 1.75
+    assert c.D is False
+    assert c.E == datetime.datetime.strptime("10/10/10", "%d/%m/%y")
+
+    assert c.s['A'] == 'a'
+    assert c.s['B'] == '100'
+    assert c.s['C'] == '1.75'
+    assert c.s['D'] == 'False'
+    assert c.s['E'] == "10/10/10"
+
+
+def test_exceptions():
+    with pytest.raises(AttributeError, match='Foo'):
+        class Config(Bonfig):
+            store = Store()
+            a = store.Foo
+
+    with pytest.raises(ValueError, match="Parameter store cannot be None"):
+        class Config(Bonfig):
+            a = Field()
+
+    with pytest.raises(ValueError, match="Store must be set for Sections."):
+        class Config(Bonfig):
+            a = Section()
+
+    with pytest.raises(TypeError, match="Store attribute .* have you forgot to overwrite its value?"):
+        class Config(Bonfig):
+            s = Store()
+            A = s.Field("a")
+
+            def load(self):
+                self.s = None
+
+        c = Config()
+        c.A
+
+
