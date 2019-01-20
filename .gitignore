@@ -58,3 +58,6 @@ __pycache__*
 
 # TOX files
 .tox/
+
+# Sphinx build
+docs/build
