@@ -140,9 +140,9 @@ def make_sub_field(name, bases, post_get=None, pre_set=None):
     >>> IntField = make_sub_field('IntField', int, str, Field)
     """
     if pre_set is None:
-        pre_set = lambda v: v
+        def pre_set(v): return v
     if post_get is None:
-        post_get = lambda v: v
+        def post_get(v): return v
 
     cls = type(name, (bases,), {})
     cls.post_get = lambda s, v: post_get(v)
@@ -156,7 +156,7 @@ class FieldDict(dict):
     """
     Subclass of dict for storing field classes.
     """
-    def __init__(self, bases, *args,**kwargs):
+    def __init__(self, bases, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bases = bases
         self.add(bases)
@@ -200,6 +200,8 @@ class FieldDict(dict):
 
         Parameters
         ----------
+        name : str
+            Name of new class
         post_get : func, optional
             Function to apply to values just after they are fetched from the data Store.
         pre_set : func, optional
@@ -325,7 +327,7 @@ class Field:
         and in turn those values can be overwritten by `Bonfig.finalise` - but hopefully that's not unexpected!
         """
         if self.val is None:
-            return # skip
+            return  # skip
 
         dd = self._get_store(bonfig)
         dtype = dd.__class__
@@ -337,7 +339,8 @@ class Field:
                 d[key] = dtype()
                 d = d[key]
             except TypeError:
-                raise TypeError("Store attribute {} is not subscriptable, have you forgot to overwrite its value?".format(d))
+                raise TypeError("Store attribute {} is not subscriptable, "
+                                "have you forgot to overwrite its value?".format(d))
         setattr(bonfig, self.store_attr, dd)
         self._set_value(self._get_store(bonfig), self.pre_set(self.val))
 
@@ -353,14 +356,14 @@ class Field:
             raise e
         except TypeError:
             raise TypeError("Store attribute {} is not subscriptable,"
-                                 " have you forgot to overwrite its value?".format(store))
+                            " have you forgot to overwrite its value?".format(store))
 
     def _set_value(self, store, value):
         try:
             _dict_keys_get(store, self.keys[:-1])[self.name] = value
         except TypeError:
             raise TypeError("Store attribute {} does not support item assigment,"
-                                 " have you forgot to overwrite its value?".format(store))
+                            " have you forgot to overwrite its value?".format(store))
 
     def pre_set(self, val):
         """

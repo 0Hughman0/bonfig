@@ -44,7 +44,8 @@
 <dd><p>Base class for all Bonfigs.</p>
 <p class="rubric">Notes</p>
 <p>Instances of this class shouldn’t be created directly, instead it should be subclassed (see examples).</p>
-<p>Ideally do not call <cite>__init__</cite> directly, instead use the provided load hook for initialising things like data stores.</p>
+<p>Ideally do not call <cite>__init__</cite> directly, instead use the provided load hook for
+initialising things like data stores.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -106,7 +107,7 @@ initialised.</p>
 <dd><p>Lock <cite>Bonfig</cite> instance. This prevents any values being set on <cite>Field</cite> s.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Whilst this prevents setting <cite>Field</cite> values through attributes, values can still be changed in the         underlying store data.</p>
+<p class="last">Whilst this prevents setting <cite>Field</cite> values through attributes, values can still be changed in         the underlying store data.</p>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -577,6 +578,9 @@ and in turn those values can be overwritten by <cite>Bonfig.finalise</cite> - bu
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of new class</p>
+</dd>
 <dt><strong>post_get</strong> <span class="classifier-delimiter">:</span> <span class="classifier">func, optional</span></dt>
 <dd><p class="first last">Function to apply to values just after they are fetched from the data Store.</p>
 </dd>

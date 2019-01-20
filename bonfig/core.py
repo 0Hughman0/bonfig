@@ -13,15 +13,15 @@ class BonfigType(type):
     Additionally back-ports `__set_name__` behaviour from 3.6 that's extensively used.
     """
 
-    def __new__(cls,  name, bases, attrs, **kwargs):
+    def __new__(mcs, name, bases, attrs, **kwargs):
         """Creates Bonfig class type
 
         """
         attrs['__fields__'] = set()
         attrs['__store_attrs__'] = set()
-        return super().__new__(cls, name, bases, attrs, **kwargs)
+        return super().__new__(mcs, name, bases, attrs, **kwargs)
 
-    def __init__(cls, name, bases, attrs, **kwargs):
+    def __init__(cls, name, bases, attrs):
         """Initialises Bonfig class type.
 
         Uses built-in `dir` to get attributes of base-classes.
@@ -60,7 +60,8 @@ class Bonfig(metaclass=BonfigType):
     -----
     Instances of this class shouldn't be created directly, instead it should be subclassed (see examples).
 
-    Ideally do not call `__init__` directly, instead use the provided load hook for initialising things like data stores.
+    Ideally do not call `__init__` directly, instead use the provided load hook for
+    initialising things like data stores.
 
     Attributes
     ----------
@@ -133,8 +134,8 @@ class Bonfig(metaclass=BonfigType):
         """
         Lock `Bonfig` instance. This prevents any values being set on `Field` s.
 
-        .. warning:: Whilst this prevents setting `Field` values through attributes, values can still be changed in the \
-        underlying store data.
+        .. warning:: Whilst this prevents setting `Field` values through attributes, values can still be changed in \
+        the underlying store data.
 
         See Also
         --------
