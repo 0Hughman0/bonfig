@@ -64,3 +64,6 @@ docs/build
 
 # pytest cache
 .pytest_cache/
+
+# Eggs
+bonfig.egg-info/
