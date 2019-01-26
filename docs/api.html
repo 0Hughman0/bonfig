@@ -1,0 +1,890 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API &#8212; Bonfig 0.2 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Cheat Sheet" href="cheatsheet.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<span id="id1"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-bonfig"></span><div class="section" id="bonfig">
+<h2>Bonfig<a class="headerlink" href="#bonfig" title="Permalink to this headline">¶</a></h2>
+<p>An alternative, more beautiful way to build configs!</p>
+<dl class="class">
+<dt id="bonfig.Bonfig">
+<em class="property">class </em><code class="descclassname">bonfig.</code><code class="descname">Bonfig</code><span class="sig-paren">(</span><em>*args</em>, <em>frozen=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all Bonfigs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>frozen</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Freeze Bonfig just after initialisation - by calling <a class="reference internal" href="#bonfig.Bonfig.freeze" title="bonfig.Bonfig.freeze"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.freeze()</span></code></a>.</p>
+</dd>
+<dt><strong>*args</strong></dt>
+<dd><p class="first last">Positional arguments, passed to <a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.load()</span></code></a>.</p>
+</dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Keyword arguments, passed to <a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.load()</span></code></a>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Instances of this class shouldn’t be created directly, instead it should be subclassed (see examples).</p>
+<p>Ideally do overwrite or call <cite>__init__</cite> directly, instead use the provided load hook for
+initialising things like data stores.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>__fields__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">set</span></dt>
+<dd><p class="first last">a <cite>set</cite> containing all the classes <cite>Field</cite> attributes.</p>
+</dd>
+<dt><strong>__store_attrs__</strong> <span class="classifier-delimiter">:</span> <span class="classifier">set</span></dt>
+<dd><p class="first last">a <cite>set</cite> containing the names of each store attribute for that class</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.Bonfig.freeze" title="bonfig.Bonfig.freeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">freeze</span></code></a>()</td>
+<td>Freeze Bonfig stores.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Hook called during initialisation for loading store attributes.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.Bonfig.freeze">
+<code class="descname">freeze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.freeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Freeze Bonfig stores.</p>
+<p>Works by creating a copy of each store as dict, then converting to an <cite>MappingProxyType</cite>.</p>
+<p class="rubric">Notes</p>
+<p>In order to ‘freeze’ your store, it each container needs to implement both <cite>__getitem__()</cite> and <cite>keys()</cite> as a
+minimum.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.Bonfig.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Bonfig.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook called during initialisation for loading store attributes.</p>
+<p>Is basically <cite>__init__</cite>, but called at the right time such that locking works and that fields can be
+initialised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>*args</strong></dt>
+<dd><p class="first last">args from <cite>__init__</cite></p>
+</dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">kwargs from <cite>__init__</cite></p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>As <cite>load</cite> is called before <cite>Field`s are initialised, values can be overwritten by fields unless
+`Field.val=None</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.Store">
+<em class="property">class </em><code class="descclassname">bonfig.</code><code class="descname">Store</code><span class="sig-paren">(</span><em>_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.Store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Placeholder class, allowing structure of <cite>store</cite> to be created in <cite>Bonfig</cite>.</p>
+<p>Upon initialisation should be overwritten with an container object that supports <cite>__getitem__</cite> using
+<a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.load()</span></code></a>.</p>
+<p>Any <cite>Fields</cite> ultimately belonging to a <cite>Store</cite> will look in the container that the <cite>Store</cite> object is overwritten
+with during <a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.load()</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">a</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;my store&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">b</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">f1</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">Field</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">f2</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">Field</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;my store&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">Field</span>
+<span class="go">functools.partial(&lt;class &#39;bonfig.fields.Field&#39;&gt;, _store=&lt;Store: my store&gt;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">Section</span>
+<span class="go">functools.partial(&lt;class &#39;bonfig.fields.Section&#39;&gt;, _store=&lt;Store: b&gt;)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bonfig.Store.name" title="bonfig.Store.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Name of store.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="bonfig.Store.is_with_proxy">
+<code class="descname">is_with_proxy</code><a class="headerlink" href="#bonfig.Store.is_with_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <cite>self</cite> is an original <cite>Store</cite> or a proxy of another from a <cite>with</cite> statement.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.Store.name">
+<code class="descname">name</code><a class="headerlink" href="#bonfig.Store.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of store.</p>
+<p>For any <cite>Fields</cite> that ultimately belong to this store will have this value as <code class="xref py py-attr docutils literal notranslate"><span class="pre">Field.store_attr</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="note">
+<h3>NOTE<a class="headerlink" href="#note" title="Permalink to this headline">¶</a></h3>
+<p>You will notice in the <cite>Field</cite> and <cite>Section</cite> parameters for <cite>__init__</cite> which start with <cite>‘_’</cite>, these arguments
+are not intended to be set directly. Instead these classes should be accessed by either parent <cite>Stores</cite> or <cite>Sections</cite>,
+and these arguments will be implicitly set.</p>
+<span class="target" id="module-bonfig.fields"></span><div class="section" id="attributes">
+<h4>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h4>
+<dl class="docutils">
+<dt>fields <span class="classifier-delimiter">:</span> <span class="classifier">FieldDict</span></dt>
+<dd>A global <cite>dict</cite> -like object that stores all of the field classes. This dict is used to provide stores and sections
+with access to field classes, as such, add to this global dict to make custom fields available in that context. (By
+default includes <cite>Field</cite>, <cite>IntField</cite>, <cite>FloatField</cite>, <cite>BoolField</cite> and <cite>DatetimeField</cite>.</dd>
+</dl>
+<dl class="class">
+<dt id="bonfig.fields.Section">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Section</code><span class="sig-paren">(</span><em>name=None</em>, <em>*</em>, <em>_supsection=None</em>, <em>_store=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience class for building up multi-level <cite>Bonfigs</cite> s.</p>
+<p>Any <cite>Field</cite> s created from <cite>Section.Field</cite> implicitly have the <cite>Field.section</cite> attribute set to that <cite>Section</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">name of Section. Default behaviour is to take the name of the class attribute <cite>Section</cite> was set to (using
+<cite>__set_name__</cite>).</p>
+</dd>
+<dt><strong>_supsection</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Section, optional</span></dt>
+<dd><p class="first last">Section that owns this section. Rather than setting directly, this should be done by creating this <cite>Section</cite>
+instance using <cite>supsection.Section</cite>.</p>
+</dd>
+<dt><strong>_store</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Store</span></dt>
+<dd><p class="first last">Store that section belongs to.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">s</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">A</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Section</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">Af</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;A - f&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span><span class="s1">&#39;B within A&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">Bf</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;B - f&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">keys</span>
+<span class="go">[&#39;sec_A&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">keys</span>
+<span class="go">[&#39;A&#39;, &#39;B within A&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">Af</span>
+<span class="go">&#39;A - f&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">Af</span><span class="o">.</span><span class="n">keys</span>
+<span class="go">[&#39;A&#39;, &#39;Af&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Config</span><span class="o">.</span><span class="n">Bf</span><span class="o">.</span><span class="n">keys</span>
+<span class="go">[&#39;A&#39;, &#39;B within A&#39;, &#39;Bf&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">s</span>
+<span class="go">{&#39;A&#39;:</span>
+<span class="go">{</span>
+<span class="go">&#39;Af&#39;: &#39;A - f&#39;,</span>
+<span class="go">&#39;B within A&#39;:</span>
+<span class="go">    {</span>
+<span class="go">    &#39;Bf&#39;: &#39;B - f&#39;</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Section.is_with_proxy" title="bonfig.fields.Section.is_with_proxy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_with_proxy</span></code></a></dt>
+<dd><p class="first last">Check if <cite>self</cite> is an original <cite>Section</cite> or a proxy of another from a <cite>with</cite> statement.</p>
+</dd>
+<dt><a class="reference internal" href="#bonfig.fields.Section.keys" title="bonfig.fields.Section.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></dt>
+<dd><p class="first last">Keys used to look get to this section of the <cite>store</cite></p>
+</dd>
+<dt><a class="reference internal" href="#bonfig.fields.Section.name" title="bonfig.fields.Section.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></dt>
+<dd><p class="first last">Name of Section.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="bonfig.fields.Section._from_with">
+<em class="property">classmethod </em><code class="descname">_from_with</code><span class="sig-paren">(</span><em>with_owner</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Section._from_with" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal method for creating a ‘proxy’ of a <cite>Section</cite> object for use in <cite>with</cite> blocks.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Section.is_with_proxy">
+<code class="descname">is_with_proxy</code><a class="headerlink" href="#bonfig.fields.Section.is_with_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if <cite>self</cite> is an original <cite>Section</cite> or a proxy of another from a <cite>with</cite> statement.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Section.keys">
+<code class="descname">keys</code><a class="headerlink" href="#bonfig.fields.Section.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keys used to look get to this section of the <cite>store</cite></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Section.name">
+<code class="descname">name</code><a class="headerlink" href="#bonfig.fields.Section.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of Section.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.Field">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>_store=None</em>, <em>_section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a parameter from your configuration. This object encapsulates how this parameter is serialised
+and deserialsed as well as how and where it’s fetched from.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>val</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object, optional</span></dt>
+<dd><p class="first last">value that will be inserted into <cite>store</cite> upon initialisation. (Note if set to <cite>None</cite>, no value will be added to
+the <cite>store</cite> rather that a value equal to <cite>None</cite>.)</p>
+</dd>
+<dt><strong>default</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object, optional</span></dt>
+<dd><p class="first last">Fallback value for this parameter if not found in <cite>store</cite>. If set to <cite>None</cite> then <cite>AttributeError</cite> will be
+raised.</p>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Key that is used to get value of <cite>Field</cite> as stored in <cite>store</cite>. Default behaviour is to take the name of the
+class attribute <cite>Field</cite> was set to (using <cite>__set_name__</cite>).</p>
+</dd>
+<dt><strong>_store</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Store</span></dt>
+<dd><p class="first last"><cite>store</cite> that this <cite>Field</cite> belongs to/ looks into. Shouldn’t really be set directly, instead use <cite>Store.Field</cite> to
+create <cite>Field</cite> instances.</p>
+</dd>
+<dt><strong>_section</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Section, optional</span></dt>
+<dd><p class="first last"><cite>section</cite> that this <cite>Field</cite> belongs to. The <cite>section</cite> provides a set of ‘pre-keys’ that are looked up before
+<cite>name</cite> in <cite>store</cite> in order to fetch the <cite>Field</cite> ‘s value. Rather than setting directly, <cite>Section.Field</cite> should
+be used.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">s</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">f1</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;first field&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">f2</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Field</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">f3</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;f3 not found&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">f4</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;fourth field&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;field1&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">f1</span>
+<span class="go">&#39;first field&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">f2</span>
+<span class="go">KeyError: &#39;f2&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">f3</span>
+<span class="go">&#39;f3 not found&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">f4</span>
+<span class="go">&#39;forth field&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">s</span>
+<span class="go">{&#39;f1&#39;: &#39;first field&#39;, &#39;field1&#39;: &#39;fourth field&#39;}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field.keys" title="bonfig.fields.Field.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#bonfig.fields.Field.store_attr" title="bonfig.fields.Field.store_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></a></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.Field._get_store">
+<code class="descname">_get_store</code><span class="sig-paren">(</span><em>bonfig</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field._get_store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get <cite>store</cite> attribute from <cite>bonfig</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field._get_value">
+<code class="descname">_get_value</code><span class="sig-paren">(</span><em>store</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field._get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook to allow you to control how the value is looked up in the data Store.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field._initialise">
+<code class="descname">_initialise</code><span class="sig-paren">(</span><em>bonfig</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field._initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialise <cite>Field</cite>.</p>
+<p>This method is called during initialisation, and sets the value found within <cite>store</cite> at <cite>self.keys</cite> to
+<cite>self.val</cite>, unless <cite>self.val</cite> is <cite>None</cite>, in which case, nothing happens!</p>
+<p class="rubric">Notes</p>
+<p>This process takes place just after <a class="reference internal" href="#bonfig.Bonfig.load" title="bonfig.Bonfig.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bonfig.load()</span></code></a> and for each <cite>Field</cite>.
+As such any values set from <code class="xref py py-class docutils literal notranslate"><span class="pre">Bonfig.load</span></code> are liable to be overwritten by <cite>initialise</cite>
+unless <cite>self.val=None</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field._post_get">
+<code class="descname">_post_get</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field._post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values after they are fetched from data Store</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.Field._pre_set">
+<code class="descname">_pre_set</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.Field._pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values before they are inserted into data Store</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Field.keys">
+<code class="descname">keys</code><a class="headerlink" href="#bonfig.fields.Field.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keys used to look up value within <cite>store</cite>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bonfig.fields.Field.store_attr">
+<code class="descname">store_attr</code><a class="headerlink" href="#bonfig.fields.Field.store_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bonfig.fields.make_sub_field">
+<code class="descclassname">bonfig.fields.</code><code class="descname">make_sub_field</code><span class="sig-paren">(</span><em>name</em>, <em>bases</em>, <em>post_get=None</em>, <em>pre_set=None</em>, <em>doc=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.make_sub_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for producing <cite>Field</cite>-like classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of new field class</p>
+</dd>
+<dt><strong>post_get</strong> <span class="classifier-delimiter">:</span> <span class="classifier">func</span></dt>
+<dd><p class="first last">Function to apply to values just after they are fetched from the data <code class="xref py py-class docutils literal notranslate"><span class="pre">Store</span></code>.</p>
+</dd>
+<dt><strong>pre_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">func</span></dt>
+<dd><p class="first last">Function to apply to values just before they are inserted into the data <code class="xref py py-class docutils literal notranslate"><span class="pre">Store</span></code>.</p>
+</dd>
+<dt><strong>bases</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">Class for the newly created class to subclass (defaults to <a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>).</p>
+</dd>
+<dt><strong>doc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">docstring :)</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>cls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">New <cite>Field</cite> subclass.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.FieldDict">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">FieldDict</code><span class="sig-paren">(</span><em>bases</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FieldDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass of dict for storing field classes.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#bonfig.fields.FieldDict.add" title="bonfig.fields.FieldDict.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(field_cls)</td>
+<td>Add a field_cls class to a field_cls dict.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">fromkeys</span></code>($type,&nbsp;iterable[,&nbsp;value])</td>
+<td>Returns a new dict with keys from iterable and values equal to value.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bonfig.fields.FieldDict.make_quick" title="bonfig.fields.FieldDict.make_quick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_quick</span></code></a>(name[,&nbsp;post_get,&nbsp;pre_set,&nbsp;…])</td>
+<td>Factory function for producing <cite>Field</cite> -like classes.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code>(k[,d])</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code>()</td>
+<td>2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>([E,&nbsp;]**F)</td>
+<td>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k] If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v In either case, this is followed by: for k in F:  D[k] = F[k]</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.FieldDict.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>field_cls</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FieldDict.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a field_cls class to a field_cls dict. This method implicitly uses <cite>field_cls.__name__</cite> as the key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>field_cls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">A <cite>Field</cite> subclass that you want to be added to the dict</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>field_cls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">Returns the same field_cls instance back. This allows the method to be used as a class decorator!</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@fields</span><span class="o">.</span><span class="n">add</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">ListField</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_store</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_section</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">_store</span><span class="o">=</span><span class="n">_store</span><span class="p">,</span> <span class="n">_section</span><span class="o">=</span><span class="n">_section</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">sep</span>
+<span class="gp">...</span>
+<span class="gp">... </span>        <span class="k">def</span> <span class="nf">post_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>        <span class="k">def</span> <span class="nf">pre_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="gp">... </span>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.FieldDict.make_quick">
+<code class="descname">make_quick</code><span class="sig-paren">(</span><em>name</em>, <em>post_get=None</em>, <em>pre_set=None</em>, <em>doc_preamble=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FieldDict.make_quick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function for producing <cite>Field</cite> -like classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of new class</p>
+</dd>
+<dt><strong>post_get</strong> <span class="classifier-delimiter">:</span> <span class="classifier">func, optional</span></dt>
+<dd><p class="first last">Function to apply to values just after they are fetched from the data Store.</p>
+</dd>
+<dt><strong>pre_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">func, optional</span></dt>
+<dd><p class="first last">Function to apply to values just before they are inserted into the data Store.</p>
+</dd>
+<dt><strong>bases</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">Class for the newly created class to subclass (defaults to <a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>).</p>
+</dd>
+<dt><strong>doc_preamble</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">docstring to prepend to Field docstring!</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>cls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">cls</span></dt>
+<dd><p class="first last">New Field subclass.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">IntField</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">make_quick</span><span class="p">(</span><span class="s1">&#39;IntField&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.IntField">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">IntField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>_store=None</em>, <em>_section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field that serialises and de-serialises fields that are integers</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Field</span></code></a></dt>
+<dd>Parent class</dd>
+</dl>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.IntField._post_get">
+<code class="descname">_post_get</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField._post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>int(x=0) -&gt; integer
+int(x, base=10) -&gt; integer</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is a number, return x.__int__().  For floating point
+numbers, this truncates towards zero.</p>
+<p>If x is not a number or if base is given, then x must be a string,
+bytes, or bytearray instance representing an integer literal in the
+given base.  The literal can be preceded by ‘+’ or ‘-‘ and be surrounded
+by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+Base 0 means to interpret the base from the string as an integer literal.
+&gt;&gt;&gt; int(‘0b100’, base=0)
+4</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.IntField._pre_set">
+<code class="descname">_pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.IntField._pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.BoolField">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">BoolField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>_store=None</em>, <em>_section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.BoolField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field that serialises and de-serialises fields that are boolean</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Field</span></code></a></dt>
+<dd>Parent class</dd>
+</dl>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.BoolField._pre_set">
+<code class="descname">_pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.BoolField._pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.FloatField">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">FloatField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>*</em>, <em>_store=None</em>, <em>_section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field that serialises and de-serialises fields that are floats</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Field</span></code></a></dt>
+<dd>Parent class</dd>
+</dl>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.FloatField._post_get">
+<code class="descname">_post_get</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField._post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>float(x) -&gt; floating point number</p>
+<p>Convert a string or number to a floating point number, if possible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.FloatField._pre_set">
+<code class="descname">_pre_set</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.FloatField._pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>str(object=’‘) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bonfig.fields.DatetimeField">
+<em class="property">class </em><code class="descclassname">bonfig.fields.</code><code class="descname">DatetimeField</code><span class="sig-paren">(</span><em>val=None</em>, <em>default=None</em>, <em>name=None</em>, <em>fmt=None</em>, <em>*</em>, <em>_store=None</em>, <em>_section=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.DatetimeField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field that serialises and de-serialises fields that are datetime strings!</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="#bonfig.fields.Field" title="bonfig.fields.Field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Field</span></code></a></dt>
+<dd>Parent class</dd>
+</dl>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></dt>
+<dd><p class="first last">Keys used to look up value within <cite>store</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">store_attr</span></code></dt>
+<dd><p class="first last">Name of <cite>Bonfig</cite> instance attribute that values are looked up in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bonfig.fields.DatetimeField._post_get">
+<code class="descname">_post_get</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.DatetimeField._post_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values after they are fetched from data Store</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bonfig.fields.DatetimeField._pre_set">
+<code class="descname">_pre_set</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#bonfig.fields.DatetimeField._pre_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function to values before they are inserted into data Store</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Bonfig</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cheatsheet.html">Cheat Sheet</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bonfig">Bonfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fields">Fields</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="cheatsheet.html" title="previous chapter">Cheat Sheet</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Hugh Ramsden.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

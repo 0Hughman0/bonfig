@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Cheat Sheet &#8212; Bonfig 0.2 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="cheat-sheet">
+<span id="cheatsheet"></span><h1>Cheat Sheet<a class="headerlink" href="#cheat-sheet" title="Permalink to this headline">¶</a></h1>
+<p>Rather than a cheatsheet, here’s a phat Bonfig:</p>
+<div class="code python3 highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">configparser</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">bonfig</span> <span class="k">import</span> <span class="n">Bonfig</span><span class="p">,</span> <span class="n">Store</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="c1"># Context managers are redundant, but potentially look nicer...?</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">Store</span><span class="p">()</span> <span class="k">as</span> <span class="n">basic</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">VERSION</span> <span class="o">=</span> <span class="n">basic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="s1">&#39;0.2&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">Store</span><span class="p">()</span> <span class="k">as</span> <span class="n">secrets</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># default parameter is used as fallback if Field.name not found in its store</span>
+<span class="gp">... </span>        <span class="n">CREDENTIALS</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;XXXXXX-XX&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="n">PIN</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">IntField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>  <span class="c1"># convert string value to integer on getting</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">Store</span><span class="p">()</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># Leaving val blank means no value is inserted after load</span>
+<span class="gp">... </span>        <span class="n">SAMPLE</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Field</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="n">AVERAGE</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>  <span class="c1"># convert string value to float</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">Store</span><span class="p">()</span> <span class="k">as</span> <span class="n">prefs</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># Prepends all Field.keys belonging to lines with &#39;LINES&#39;</span>
+<span class="gp">... </span>        <span class="k">with</span> <span class="n">prefs</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span><span class="s1">&#39;LINES&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">lines</span><span class="p">:</span>  <span class="c1"># Section name manually set to &#39;LINES&#39;</span>
+<span class="gp">... </span>            <span class="n">X_MARKER</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">Field</span><span class="p">()</span>
+<span class="gp">... </span>            <span class="n">SHOW</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">BoolField</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>        <span class="k">with</span> <span class="n">prefs</span><span class="o">.</span><span class="n">Section</span><span class="p">(</span><span class="s1">&#39;META&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">meta</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="c1"># fetch from store (prefs) with key &#39;start&#39;</span>
+<span class="gp">... </span>            <span class="n">DATE</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">DatetimeField</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">/%m/%y&#39;</span><span class="p">)</span>  <span class="c1"># fmt is a datetime fmt string</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">basic</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">... </span>        <span class="c1"># Taking a copy of os.environ ensures parameter values won&#39;t change if env values change!</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">secrets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;examples/</span><span class="si">{fn}</span><span class="s2">.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;examples/</span><span class="si">{fn}</span><span class="s2">.ini&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">prefs</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="s2">&quot;bonfig&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">VERSION</span>
+<span class="go">&#39;0.2&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">CREDENTIALS</span>
+<span class="go">&quot;XXXXXX-XX&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">AVERAGE</span>
+<span class="go">3.14159</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">SHOW</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">DATE</span>
+<span class="go">datetime.datetime(1982, 11, 18, 0, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># create a mutable version</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">AVERAGE</span> <span class="o">=</span> <span class="mf">365.2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">AVERAGE</span>
+<span class="go">365.2</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Bonfig</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Quickstart</a></li>
+      <li>Next: <a href="api.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Hugh Ramsden.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/cheatsheet.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -22,3 +22,12 @@ numpydoc = "*"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[readme]
+README.md
+
+[homepage]
+https://github.com/0Hughman0/bonfig
+
+[documentation]
+https://0hughman0.github.io/bonfig/index.html
