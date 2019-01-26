@@ -1,6 +1,6 @@
 # Bonfig
 
-    from Bonfig import *
+    from Bonfig import Bonfig, Store
     import configparser
     class INIConfig(Bonfig):
         store = Store()
