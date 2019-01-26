@@ -1,7 +1,0 @@
-README.md
-setup.cfg
-setup.py
-bonfig.egg-info/PKG-INFO
-bonfig.egg-info/SOURCES.txt
-bonfig.egg-info/dependency_links.txt
-bonfig.egg-info/top_level.txt
