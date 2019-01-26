@@ -1,7 +1,4 @@
 """
-# Todo - Reimplement the locking mechanism to work on stores instead - don't think I'll regret it.
-
-
 Attributes
 ----------
 fields : FieldDict
@@ -18,16 +15,18 @@ class Store:
     """
     Placeholder class, allowing structure of `store` to be created in `Bonfig`.
 
-    Upon initialisation should be overwritten with an container object that supports `__getitem__` using `Bonfig.load`.
+    Upon initialisation should be overwritten with an container object that supports `__getitem__` using
+    :py:meth:`Bonfig.load`.
 
     Any `Fields` ultimately belonging to a `Store` will look in the container that the `Store` object is overwritten
-    with during `Bonfig.load`.
+    with during :py:meth:`Bonfig.load`.
 
     Attributes
     ----------
     name : str, optional
-        Name of attribute that child `Fields` will look for their values in i.e. the value `Field.store_attr` is set to
-        for children. Default is to set to name that `Store` instance is assigned to (using `__set_name__` behaviour).
+        Name of attribute that child `Fields` will look for their values in i.e. the value :py:attr:`Field.store_attr`
+        is set to for children. Default is to set to name that `Store` instance is assigned to
+        (using `__set_name__` behaviour).
 
     Examples
     --------
@@ -47,15 +46,15 @@ class Store:
     functools.partial(<class 'bonfig.fields.Section'>, _store=<Store: b>)
     """
 
-    def __init__(self, name=None):
-        self._name = name
+    def __init__(self, _name=None):
+        self._name = _name
         self.Section = functools.partial(Section, _store=self)
 
         self._with_owner = None
 
     @classmethod
     def _from_with(cls, with_owner):
-        """Internal method for creating a 'proxy' of a `Store` object for use in `with` blocks.
+        """Internal method for creating a 'proxy' of a :py:class:`Store` object for use in `with` blocks.
 
         """
         o = cls(with_owner.name)
@@ -73,7 +72,7 @@ class Store:
     def name(self):
         """Name of store.
 
-        For any `Fields` that ultimately belong to this store will have this value as `Field.store_attr`.
+        For any `Fields` that ultimately belong to this store will have this value as :py:attr:`Field.store_attr`.
         """
         if self.is_with_proxy and self._with_owner.name:
             return self._with_owner.name
@@ -115,7 +114,7 @@ def _dict_keys_get(d, keys):
     return d
 
 
-def make_sub_field(name, bases, post_get=None, pre_set=None):
+def make_sub_field(name, bases, post_get=None, pre_set=None, doc=None):
     """
     Factory function for producing `Field`-like classes.
 
@@ -124,11 +123,13 @@ def make_sub_field(name, bases, post_get=None, pre_set=None):
     name : str
         Name of new field class
     post_get : func
-        Function to apply to values just after they are fetched from the data `Store`.
+        Function to apply to values just after they are fetched from the data :py:class:`Store`.
     pre_set : func
-        Function to apply to values just before they are inserted into the data `Store`.
+        Function to apply to values just before they are inserted into the data :py:class:`Store`.
     bases : cls
-        Class for the newly created class to subclass (defaults to `Field`).
+        Class for the newly created class to subclass (defaults to :py:class:`Field`).
+    doc : str, optional
+        docstring :)
 
     Returns
     -------
@@ -143,12 +144,20 @@ def make_sub_field(name, bases, post_get=None, pre_set=None):
         def pre_set(v): return v
     if post_get is None:
         def post_get(v): return v
+    if doc is None:
+        doc = name
 
     cls = type(name, (bases,), {})
-    cls.post_get = lambda s, v: post_get(v)
-    cls.post_get.__doc__ = post_get.__doc__
-    cls.pre_set = lambda s, v: pre_set(v)
-    cls.pre_set.__doc__ = pre_set.__doc__
+    cls._post_get = lambda s, v: post_get(v)
+    cls._post_get.__doc__ = post_get.__doc__
+    cls._pre_set = lambda s, v: pre_set(v)
+    cls._pre_set.__doc__ = pre_set.__doc__
+
+    cls.__doc__ = ("{}\n\n"
+                   "See Also\n"
+                   "--------\n"
+                   "Field : Parent class").format(doc)
+
     return cls
 
 
@@ -194,7 +203,7 @@ class FieldDict(dict):
         self[field_cls.__name__] = field_cls
         return field_cls
 
-    def make_quick(self, name, post_get=None, pre_set=None):
+    def make_quick(self, name, post_get=None, pre_set=None, doc_preamble=None):
         """
         Factory function for producing `Field` -like classes.
 
@@ -207,7 +216,10 @@ class FieldDict(dict):
         pre_set : func, optional
             Function to apply to values just before they are inserted into the data Store.
         bases : cls
-            Class for the newly created class to subclass (defaults to `Field`).
+            Class for the newly created class to subclass (defaults to :py:class:`Field`).
+        doc_preamble : str, optional
+            docstring to prepend to Field docstring!
+
 
         Returns
         -------
@@ -222,7 +234,7 @@ class FieldDict(dict):
         --------
         >>> IntField = fields.make_quick('IntField', int, str)
         """
-        cls = make_sub_field(name, self.bases, post_get, pre_set)
+        cls = make_sub_field(name, self.bases, post_get, pre_set, doc_preamble)
         self.add(cls)
         return cls
 
@@ -314,7 +326,7 @@ class Field:
             return self.section.keys + [self.name]
         return [self.name]
 
-    def initialise(self, bonfig):
+    def _initialise(self, bonfig):
         """Initialise `Field`.
 
         This method is called during initialisation, and sets the value found within `store` at `self.keys` to
@@ -322,9 +334,9 @@ class Field:
 
         Notes
         -----
-        This process takes place just after `Bonfig.load` and for each `Field` is finished before `Bonfig.finalise`.
-        As such any values set from `Bonfig.load` are liable to be overwritten by `initialise` unless `self.val=None`,
-        and in turn those values can be overwritten by `Bonfig.finalise` - but hopefully that's not unexpected!
+        This process takes place just after :py:meth:`.Bonfig.load` and for each `Field`.
+        As such any values set from :py:class:`Bonfig.load` are liable to be overwritten by `initialise`
+        unless `self.val=None`.
         """
         if self.val is None:
             return  # skip
@@ -342,7 +354,7 @@ class Field:
                 raise TypeError("Store attribute {} is not subscriptable, "
                                 "have you forgot to overwrite its value?".format(d))
         setattr(bonfig, self.store_attr, dd)
-        self._set_value(self._get_store(bonfig), self.pre_set(self.val))
+        self._set_value(self._get_store(bonfig), self._pre_set(self.val))
 
     def _get_value(self, store):
         """
@@ -354,24 +366,17 @@ class Field:
             if self.default is not None:
                 return self.default
             raise e
-        except TypeError:
-            raise TypeError("Store attribute {} is not subscriptable,"
-                            " have you forgot to overwrite its value?".format(store))
 
     def _set_value(self, store, value):
-        try:
-            _dict_keys_get(store, self.keys[:-1])[self.name] = value
-        except TypeError:
-            raise TypeError("Store attribute {} does not support item assigment,"
-                            " have you forgot to overwrite its value?".format(store))
+        _dict_keys_get(store, self.keys[:-1])[self.name] = value
 
-    def pre_set(self, val):
+    def _pre_set(self, val):
         """
         Apply function to values before they are inserted into data Store
         """
         return val
 
-    def post_get(self, val):
+    def _post_get(self, val):
         """
         Apply function to values after they are fetched from data Store
         """
@@ -381,13 +386,11 @@ class Field:
         if bonfig is None:
             return self
         store = self._get_store(bonfig)
-        return self.post_get(self._get_value(store))
+        return self._post_get(self._get_value(store))
 
     def __set__(self, bonfig, value):
-        if bonfig.locked:
-            raise AttributeError("Attempting to mutate attribute {} on a locked Bonfig".format(self.name))
         store = self._get_store(bonfig)
-        self._set_value(store, self.pre_set(value))
+        self._set_value(store, self._pre_set(value))
 
     def __repr__(self):
         return "<{} '{}' stored in {}: val={}, default={}>".format(self.__class__.__name__,
@@ -398,16 +401,21 @@ class Field:
 
 
 fields = FieldDict(Field)
-IntField = fields.make_quick('IntField', int, str)
-FloatField = fields.make_quick('FloatField', float, str)
-BoolField = fields.make_quick('BoolField', str_bool, str)
+IntField = fields.make_quick('IntField', int, str, 'Field that serialises and de-serialises fields that are integers')
+FloatField = fields.make_quick('FloatField', float, str,
+                               'Field that serialises and de-serialises fields that are floats')
+BoolField = fields.make_quick('BoolField', str_bool, str,
+                              'Field that serialises and de-serialises fields that are boolean')
 
 
 @fields.add
 class DatetimeField(Field):
     """
-    Field that serialises and
+    Field that serialises and de-serialises fields that are datetime strings!
 
+    See Also
+    --------
+    Field : Parent class
     """
 
     def __init__(self, val=None, default=None, name=None, fmt=None, *, _store=None, _section=None):
@@ -416,10 +424,10 @@ class DatetimeField(Field):
             raise ValueError("fmt can't be None")
         self.fmt = fmt
 
-    def pre_set(self, val):
+    def _pre_set(self, val):
         return val.strftime(self.fmt)
 
-    def post_get(self, val):
+    def _post_get(self, val):
         return datetime.datetime.strptime(val, self.fmt)
 
 

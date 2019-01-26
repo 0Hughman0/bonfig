@@ -27,7 +27,7 @@ a whole bunch of great features:
 
 * Declare your configurations as easy to read classes.
 * Get all the power that comes with classes built into your configurations - polymorphism, custom methods and custom initialisation.
-* Safety considered with configuration lock-ability.
+* Sleep safe in the knowledge your config won't change unexpectedly.
 * Ready made serialisation and deserialisation with readmade custom `Fields` - `IntField`, `FloatField`, `BoolField` and `DatetimeField`.
 
 

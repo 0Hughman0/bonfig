@@ -1,4 +1,5 @@
 import sys
+import types
 
 from bonfig.fields import Field, Store, Section
 
@@ -43,24 +44,36 @@ class BonfigType(type):
         super().__init__(name, bases, attrs)
 
 
+def _freeze_mapping(d):
+    """Recursively turn mapping into nested `types.MappingProxyTypes`
+
+    """
+    d = dict(d)
+    for k in d.keys():
+        if hasattr(d[k], '__getitem__') and hasattr(d[k], 'keys'):
+            d[k] = _freeze_mapping(d[k])
+    d = types.MappingProxyType(d)
+    return d
+
+
 class Bonfig(metaclass=BonfigType):
     """
     Base class for all Bonfigs.
 
-    Arguments
+    Parameters
     ----------
-    locked : bool, optional
-        Lock `Bonfig` instance immediately after initialisation (default - False)
+    frozen : bool, optional
+        Freeze Bonfig just after initialisation - by calling :py:meth:`Bonfig.freeze`.
     *args
-        Positional arguments, passed to `load` (see load)
+        Positional arguments, passed to :py:meth:`Bonfig.load`.
     **kwargs
-        Keyword arguments, passed to `load` (see load)
+        Keyword arguments, passed to :py:meth:`Bonfig.load`.
 
     Notes
     -----
     Instances of this class shouldn't be created directly, instead it should be subclassed (see examples).
 
-    Ideally do not call `__init__` directly, instead use the provided load hook for
+    Ideally do overwrite or call `__init__` directly, instead use the provided load hook for
     initialising things like data stores.
 
     Attributes
@@ -75,17 +88,14 @@ class Bonfig(metaclass=BonfigType):
 
     """
 
-    def __init__(self, *args, locked=True, **kwargs):
-        self._locked = False
-
+    def __init__(self, *args, frozen=True, **kwargs):
         self.load(*args, **kwargs)
 
         for field in self.__fields__:
-            field.initialise(self)
+            field._initialise(self)
 
-        self.finalise()
-
-        self._locked = locked
+        if frozen:
+            self.freeze()
 
     def load(self, *args, **kwargs):
         """
@@ -94,13 +104,13 @@ class Bonfig(metaclass=BonfigType):
         Is basically `__init__`, but called at the right time such that locking works and that fields can be
         initialised.
 
-        Note
-        ----
+        Notes
+        -----
         As `load` is called before `Field`s are initialised, values can be overwritten by fields unless
         `Field.val=None`.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         *args
             args from `__init__`
         **kwargs
@@ -109,55 +119,16 @@ class Bonfig(metaclass=BonfigType):
         for store_attr in self.__store_attrs__:
             setattr(self, store_attr, {})
 
-    def finalise(self):
+    def freeze(self):
+        """Freeze Bonfig stores.
+
+        Works by creating a copy of each store as dict, then converting to an `MappingProxyType`.
+
+        Notes
+        -----
+        In order to 'freeze' your store, it each container needs to implement both `__getitem__()` and `keys()` as a
+        minimum.
         """
-        Hook called during initialisation after fields have been initialised.
-
-        This could be useful for maybe replacing your store with a read-only version of itself (see examples)
-
-        Default behaviour is to do absolutely nothing!
-
-        Examples
-        --------
-        # Todo
-        """
-        return
-
-    @property
-    def locked(self):
-        """
-        Check if `Bonfig` instance is locked
-        """
-        return self._locked
-
-    def lock(self):
-        """
-        Lock `Bonfig` instance. This prevents any values being set on `Field` s.
-
-        .. warning:: Whilst this prevents setting `Field` values through attributes, values can still be changed in \
-        the underlying store data.
-
-        See Also
-        --------
-        unlock : unlock the `Bonfig` instance
-        """
-        self._locked = True
-
-    def unlock(self):
-        """
-        Unlock `Bonfig` instance. This allows setting values of `Field` s.
-
-        See Also
-        --------
-        lock : lock the `Bonfig` instance
-        """
-        self._locked = False
-
-    def __enter__(self):
-        """Unlock `Bonfig` instance within `with` block. `Bonfig` with re-lock upon `__exit__`.
-
-        """
-        self.unlock()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.lock()
+        for store_attr in self.__store_attrs__:
+            frozen = _freeze_mapping(getattr(self, store_attr))
+            setattr(self, store_attr, frozen)

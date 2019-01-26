@@ -58,10 +58,7 @@ Rather than a cheatsheet, here's a phat Bonfig:
     True
     >>> c.DATE
     datetime.datetime(1982, 11, 18, 0, 0)
-    >>> c.SHOW = False
-    AttributeError: Attempting to mutate attribute SHOW on a locked Bonfig
-    >>> c.unlock()
-    >>> c.SHOW = False
-    >>> c.SHOW
-    False
-    >>> c.lock()
+    >>> c = Config(frozen=False)  # create a mutable version
+    >>> c.AVERAGE = 365.2
+    >>> c.AVERAGE
+    365.2

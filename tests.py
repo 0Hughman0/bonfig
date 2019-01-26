@@ -40,36 +40,6 @@ def test_section():
                                'D': {'d': 'Dd'}}}}
 
 
-def test_lock():
-    class TestBonfigA(Bonfig):
-        d = Store()
-        a = d.Field(1)
-
-    c = TestBonfigA(locked=True)
-
-    with pytest.raises(AttributeError):
-        c.a = 123
-
-    c.unlock()
-
-    c.a = 123
-    assert c.a == 123
-
-    c.lock()
-
-    with pytest.raises(AttributeError):
-        c.a = 1
-
-    assert c.locked is True
-
-    with c:
-        assert c.locked is False
-        c.a = 300
-
-    assert c.locked is True
-    assert c.a == 300
-
-
 def test_env_field():
     import os
     os.environ['TEST'] = 't'
@@ -86,7 +56,7 @@ def test_env_field():
             self.env = dict(os.environ) # a copy
             self.denv = os.environ # the real thing!
 
-    c = TestBonfig()
+    c = TestBonfig(frozen=False)
 
     assert c.a == 't'
     assert c.b == 'fallback'
@@ -109,10 +79,10 @@ def test_custom_field():
             super().__init__(val, default=default, name=name, _store=_store, _section=_section)
             self.sep = sep
 
-        def post_get(self, val):
+        def _post_get(self, val):
             return val.split(self.sep)
 
-        def pre_set(self, val):
+        def _pre_set(self, val):
             return self.sep.join(val)
 
     todd = ['1', '2', '3']
@@ -285,15 +255,62 @@ def test_exceptions():
         class Config(Bonfig):
             a = Section()
 
-    with pytest.raises(TypeError, match="Store attribute .* have you forgot to overwrite its value?"):
-        class Config(Bonfig):
-            s = Store()
-            A = s.Field("a")
 
-            def load(self):
-                self.s = None
+def test_freeze():
 
-        c = Config()
-        c.A
+    class Config(Bonfig):
+        s = Store()
+        a = s.Field(1)
+        b = s.Field(2)
+
+    c = Config()
+
+    assert c.a == 1
+    assert c.b == 2
+
+    with pytest.raises(TypeError):
+        c.a = 4
+
+    import configparser
+
+    class TestBonfig(Bonfig):
+        ini = Store()
+
+        A = ini.Section()
+        a = A.Field()
+        b = A.Field()
+
+        def load(self):
+            self.ini = configparser.ConfigParser()
+            self.ini.read_string("[A]\na = one\nb=two")
+
+    c = TestBonfig()
+
+    assert c.a == 'one'
+    assert c.b == 'two'
+
+    with pytest.raises(TypeError):
+        c.a = 'not one'
 
 
+    class ThreeLevels(Bonfig):
+        s = Store()
+        A = s.Section()
+        a = A.Field('a')
+
+        B = A.Section()
+        b = B.Field('b')
+
+        C = B.Section()
+        c = C.Field('c')
+
+    c = ThreeLevels()
+
+    with pytest.raises(TypeError):
+        c.a = 'not a'
+
+    with pytest.raises(TypeError):
+        c.b = 'not b'
+
+    with pytest.raises(TypeError):
+        c.c = 'not c'

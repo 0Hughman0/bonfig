@@ -1,10 +1,6 @@
-import sys
-sys.path.insert(0, r'D:\Documents\Programin\WorkingVersions\donfig\dev')
-
 from bonfig import __version__
 from distutils.core import setup
 from setuptools.config import read_configuration
-
 
 
 setup(name='bonfig',

@@ -18,4 +18,6 @@ are not intended to be set directly. Instead these classes should be accessed by
 and these arguments will be implicitly set.
 
 .. automodule:: bonfig.fields
-    :members: Section, Field, make_sub_field, FieldDict
+    :members: Section, Field, make_sub_field, FieldDict, IntField, BoolField, FloatField, DatetimeField
+    :private-members:
+

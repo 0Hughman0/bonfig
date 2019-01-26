@@ -61,3 +61,6 @@ __pycache__*
 
 # Sphinx build
 docs/build
+
+# pytest cache
+.pytest_cache/

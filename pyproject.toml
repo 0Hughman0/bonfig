@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "bonfig"
+version = "0.2.0"
+description = "Don't write configurations, write class declarations."
+authors = ["0Hughman0 <rammers2@hotmail.co.uk>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+docutils = "*"
+pygments = "*"
+tox = "*"
+tox-globinterpreter = "*"
+sphinx = "*"
+coverage = "*"
+numpydoc = "*"
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
