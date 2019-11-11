@@ -2,22 +2,26 @@
 
     pip install bonfig
 
-   >>> from Bonfig import Bonfig, Store
-   >>> import json
-   >>> class Config(Bonfig):
-   ...     store = Store()
-   ...     pi = store.FloatField()
-   ...     def load(self):
-   ...         self.store = json.loads('{"pi": 3.14159}')
-   >>>
-   >>> conf = Config()
-   >>> conf.pi
-   3.14159
-   >>> conf.store
-   mappingproxy({'pi': 3.14159})
 
-Stop writing your configurations as dictionaries and strange floating dataclasses, make them `Bonfigs` and make use of
-a whole bunch of great features:
+Stop writing your configurations as dictionaries and strange floating dataclasses, make them `Bonfigs`:
+
+
+    >>> from Bonfig import Bonfig, Store
+    >>> import json
+    >>> class Config(Bonfig):
+    ...     store = Store()
+    ...     pi = store.FloatField()
+    ...     def load(self):
+    ...         self.store = json.loads('{"pi": 3.14159}')
+    >>>
+    >>> conf = Config()
+    >>> conf.pi
+    3.14159
+    >>> conf.store
+    mappingproxy({'pi': 3.14159})
+
+Bonfig lets you turn your configuration formation and initialisation into a class declaration, bringing a bunch of
+additional benefits:
 
 * Declare your configurations as easy to read classes.
 * Pull in values from various sources into one neatly packaged class.
