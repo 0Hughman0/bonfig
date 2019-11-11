@@ -198,7 +198,7 @@ can cause issues:
 '123'  # meh
 
 Luckily, Bonfig provides the specialised `Field` types - :py:class:`.IntField`, :py:class:`.FloatField`,
-:py:class:`.BoolField` and :py:class:`.DatetimeField`.
+:py:class:`.BoolField`, :py:class:`.DatetimeField` and :py:class`.PathField`.
 
 These convert values *from* their given type to strings as they are inserted into their `Store` (using a method called
 `pre_set`), and then convert them back *into* their given type as after they're fetched from their `Store` (using a method

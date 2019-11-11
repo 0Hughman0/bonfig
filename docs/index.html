@@ -35,16 +35,19 @@
             
   <div class="section" id="welcome-to-bonfig-s-documentation">
 <span id="home"></span><h1>Welcome to Bonfig’s documentation!<a class="headerlink" href="#welcome-to-bonfig-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Bonfig</span> <span class="k">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">configparser</span>
-<span class="k">class</span> <span class="nc">INIConfig</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
-    <span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
-    <span class="n">SECTION</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">Section</span><span class="p">()</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">SECTION</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="s2">&quot;[SECTION]</span><span class="se">\n</span><span class="s2">A = 3.14159&quot;</span><span class="p">)</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Bonfig</span> <span class="k">import</span> <span class="n">Bonfig</span><span class="p">,</span> <span class="n">Store</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Bonfig</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">pi</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s1">&#39;{&quot;pi&quot;: 3.14159}&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conf</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conf</span><span class="o">.</span><span class="n">pi</span>
+<span class="go">3.14159</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conf</span><span class="o">.</span><span class="n">store</span>
+<span class="go">mappingproxy({&#39;pi&#39;: 3.14159})</span>
 </pre></div>
 </div>
 <p>Stop writing your configurations as dictionaries and strange floating dataclasses, make them <cite>Bonfigs</cite> and make use of
@@ -53,7 +56,7 @@ a whole bunch of great features:</p>
 <li>Declare your configurations as easy to read classes.</li>
 <li>Get all the power that comes with classes built into your configurations - polymorphism, custom methods and custom initialisation.</li>
 <li>Sleep safe in the knowledge your config won’t change unexpectedly.</li>
-<li>Ready made serialisation and deserialisation with readmade custom <cite>Fields</cite> - <cite>IntField</cite>, <cite>FloatField</cite>, <cite>BoolField</cite> and <cite>DatetimeField</cite>.</li>
+<li>Ready made serialisation and deserialisation using out the box <cite>Fields</cite> - <cite>IntField</cite>, <cite>FloatField</cite>, <cite>BoolField</cite>, <cite>DatetimeField</cite> and <cite>PathField</cite>.</li>
 </ul>
 <p>Sound good? Get started at <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a>.</p>
 <div class="toctree-wrapper compound">

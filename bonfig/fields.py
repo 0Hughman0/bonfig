@@ -9,6 +9,7 @@ fields : FieldDict
 
 import functools
 import datetime
+import pathlib
 
 
 class Store:
@@ -286,6 +287,41 @@ class Field:
     'forth field'
     >>> c.s
     {'f1': 'first field', 'field1': 'fourth field'}
+
+    Notes
+    -----
+
+    The `__add__` method of `Field` objects is also implemented for convenience, however, note that as the `Store` and
+    `Section` of a field is derived from the `Store` or `Section` that ultimately made it, this could lead to unexpected
+    behaviour if this is used between `stores` and `sections` e.g.
+
+    Works:
+
+    >>> from bonfig import Bonfig, Store
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     FIRST_NAME = s.Field("Garry")
+    ...     FULL_NAME = FIRST_NAME + 'Lineker'
+    ...
+    >>> c = Config()
+    >>> c.FIRST_NAME
+    "Garry"
+    >>> c.FULL_NAME
+    "GarryLineker"
+
+
+    Also works:
+
+    >>> from bonfig import Bonfig, Store
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     FIRST_NAME = s.Field("Garry")
+    ...     LAST_NAME = s.Field("Lineker")
+    ...     FULL_NAME = FIRST_NAME + LAST_NAME
+    ...
+    >>> c = Config()
+    >>> c.FULL_NAME
+    "GarryLineker"
     """
 
     def __init__(self, val=None, default=None, name=None, *, _store=None, _section=None):
@@ -398,14 +434,143 @@ class Field:
                                                                    self.store_attr,
                                                                    self.val,
                                                                    self.default)
+                                                                   
+    def __add__(self, other):
+        """
+        Add two Fields, or some data to Field to make a new Field
+        Parameters
+        ----------
+        other : Field, obj
+            object to add to this field's value to get a new `Field`
+
+        Returns
+        -------
+        field : Field
+            New Field object.
+
+        Warnings
+        --------
+        New field can only derive it's `_store` and `_section` values from `self`. This means that you cannot use this
+        syntax to create new `Field` objects that belong to a different `store` or `section` to `self`
+        """
+        if isinstance(other, Field):
+            other = other.val
+        return self.__class__(self.val + other, default=self.default, name=self.name,
+                              _store=self.store, _section=self.section)
 
 
 fields = FieldDict(Field)
-IntField = fields.make_quick('IntField', int, str, 'Field that serialises and de-serialises fields that are integers')
-FloatField = fields.make_quick('FloatField', float, str,
-                               'Field that serialises and de-serialises fields that are floats')
-BoolField = fields.make_quick('BoolField', str_bool, str,
-                              'Field that serialises and de-serialises fields that are boolean')
+
+
+@fields.add
+class IntField(Field):
+    """
+    Field that serialises and de-serialises values as integers.
+
+    Values are stored as strings within `store`
+
+    Parameters
+    ----------
+    val, default, name, fmt, _store, _section : object
+        See baseclass :py:class:`Field`
+
+    Examples
+    ========
+
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     days = s.IntField(365)
+    ...
+    >>> c = Config()
+    >>> c.days
+    365
+    >>> c.s
+    {'days': '365'}
+
+    See Also
+    --------
+    Field : Parent class
+    """
+
+    def _pre_set(self, val):
+        return str(val)
+
+    def _post_get(self, val):
+        return int(val)
+
+
+@fields.add
+class FloatField(Field):
+    """
+    Field that serialises and de-serialises values as floats.
+
+    Values are stored as strings within `store`
+
+    Parameters
+    ----------
+    val, default, name, fmt, _store, _section : object
+        See baseclass :py:class:`Field`
+
+    Examples
+    ========
+
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     pi = s.FloatField(3.14159)
+    ...
+    >>> c = Config()
+    >>> c.pi
+    3.14159
+    >>> c.s
+    {'pi': '3.14159'}
+
+    See Also
+    --------
+    Field : Parent class
+    """
+
+    def _pre_set(self, val):
+        return str(val)
+
+    def _post_get(self, val):
+        return float(val)
+
+
+@fields.add
+class BoolField(Field):
+    """
+    Field that serialises and de-serialises values as Booleans.
+
+    Values are stored as strings within `store`
+
+    Parameters
+    ----------
+    val, default, name, fmt, _store, _section : object
+        See baseclass :py:class:`Field`
+
+    Examples
+    ========
+
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     do = s.BoolField(True)
+    ...
+    >>> c = Config()
+    >>> c.do
+    True
+    >>> c.s
+    {'do': 'True'}
+
+    See Also
+    --------
+    Field : Parent class
+    """
+
+    def _pre_set(self, val):
+        return str(val)
+
+    def _post_get(self, val):
+        return val == 'True'
 
 
 @fields.add
@@ -413,22 +578,118 @@ class DatetimeField(Field):
     """
     Field that serialises and de-serialises fields that are datetime strings!
 
+    Values are stored as strings within `store`
+
+    Parameters
+    ----------
+    val : str, datetime.datetime
+        Either str or datetime, if str will be automatically converted to datetime.
+    fmt : str
+        Required keyword argument - format to read and write datetime with (using `datetime.datetime.strptime` and `strftime`)
+    default, name, _store, _section : object
+        See :py:class:`Field`
+
+    Examples
+    --------
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     when = s.DatetimeField('25/12/1995', fmt='%d/%m/%Y')
+    ...
+    >>> c = Config()
+    >>> c.when
+    datetime.datetime(1995, 12, 25, 0, 0)
+    >>> c.s
+    {'when': '25/12/1995'}
+
     See Also
     --------
     Field : Parent class
     """
 
     def __init__(self, val=None, default=None, name=None, fmt=None, *, _store=None, _section=None):
-        super().__init__(val, default, name, _store=_store, _section=_section)
         if fmt is None:
             raise ValueError("fmt can't be None")
         self.fmt = fmt
+
+        if isinstance(val, str):
+            val = datetime.datetime.strptime(val, fmt)
+
+        super().__init__(val, default, name, _store=_store, _section=_section)
 
     def _pre_set(self, val):
         return val.strftime(self.fmt)
 
     def _post_get(self, val):
         return datetime.datetime.strptime(val, self.fmt)
+        
+        
+@fields.add
+class PathField(Field):
+    """
+    Field that serialises and de-serialises fields that are `pathlib.Path` objects.
+
+    Values are stored as strings within `store`.
+
+    Parameters
+    ----------
+    val : str, pathlib.Path
+        Either str or `pathlib.Path`, if str, will be automatically converted to `pathlib.Path`.
+    default, name, fmt, _store, _section : object
+        See :py:class:`Field`
+
+    Examples
+    --------
+    >>> class Config(Bonfig):
+    ...     s = Store()
+    ...     base = s.PathField('')  # '' required as None is not a valid Path
+    ...     file = base / 'important.txt'
+    ...
+    >>> c = Config()
+    >>> c.base
+    Path('.')
+    >>> c.file
+    Path('important.txt')
+    >>> c.s
+
+
+    See Also
+    --------
+    Field : Parent class
+    """
+    
+    def __init__(self, val=None, default=None, name=None, *, _store=None, _section=None):
+        if val is not None:
+            val = pathlib.Path(val)
+        super().__init__(val, default, name, _store=_store, _section=_section)
+    
+    def _pre_set(self, val):
+        return val.as_posix()
+        
+    def _post_get(self, val):
+        return pathlib.Path(val)
+
+    def __truediv__(self, other):
+        """
+        Apply '/' operator on `self` by `other`
+
+        Parameters
+        ----------
+        other : PathField, str
+            other path to add to end of this path using pathlib.Path.__truediv__ behaviour.
+
+        Returns
+        -------
+        field : PathField
+            New PathField object.
+
+        Warnings
+        --------
+        New field can only derive it's `_store` and `_section` values from `self`. This means that you cannot use this
+        syntax to create new `Field` objects that belong to a different `store` or `section` to `self`
+        """
+        if isinstance(other, PathField):
+            other = other.val
+        return self.__class__(self.val / other, default=self.default, name=self.name, _store=self.store, _section=self.section)
 
 
 class Section:

@@ -16,6 +16,8 @@ Rather than a cheatsheet, here's a phat Bonfig:
     ...         VERSION = basic.Field('0.2')
     ...
     ...     with Store() as secrets:
+    ...         SECTRET_DIR = secrets.PathField('Secret/Dir/Shhhhh')
+    ...         SECRET_FILE = SECRET_DIR / 'SecretFile.shhh'
     ...         # default parameter is used as fallback if Field.name not found in its store
     ...         CREDENTIALS = secrets.Field(default="XXXXXX-XX")
     ...         PIN = secrets.IntField(default=1234)  # convert string value to integer on getting

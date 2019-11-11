@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import pathlib
 
 from bonfig import Bonfig, Store
 from bonfig.fields import fields, Field, Section
@@ -225,6 +226,7 @@ def test_special_fields():
         C = s.FloatField(1.75)
         D = s.BoolField(False)
         E = s.DatetimeField(datetime.datetime(2010, 10, 10), fmt='%d/%m/%y')
+        F = s.PathField("TestDir")
 
     c = Config()
 
@@ -233,12 +235,45 @@ def test_special_fields():
     assert c.C == 1.75
     assert c.D is False
     assert c.E == datetime.datetime.strptime("10/10/10", "%d/%m/%y")
+    assert c.F == pathlib.Path("TestDir")
 
     assert c.s['A'] == 'a'
     assert c.s['B'] == '100'
     assert c.s['C'] == '1.75'
     assert c.s['D'] == 'False'
     assert c.s['E'] == "10/10/10"
+    assert c.s['F'] == "TestDir"
+
+
+def test_field_operators():
+    class Config(Bonfig):
+        s = Store()
+
+        A = s.Field("A")
+        B = A + 'B'
+        AB = A + B
+
+        C = s.PathField('Home')
+        D = C / 'SubDir'
+        CD = C / D
+
+        E = s.IntField(5)
+        F = E + 8
+        EF = E + F
+
+    c = Config()
+
+    assert c.A == 'A'
+    assert c.B == "AB"
+    assert c.AB == 'AAB'
+
+    assert c.C == pathlib.Path('Home')
+    assert c.D == pathlib.Path('Home') / 'SubDir'
+    assert c.CD == pathlib.Path('Home') / 'Home' / 'Subdir'
+
+    assert c.E == 5
+    assert c.F == 13
+    assert c.EF == 18
 
 
 def test_exceptions():
@@ -291,7 +326,6 @@ def test_freeze():
 
     with pytest.raises(TypeError):
         c.a = 'not one'
-
 
     class ThreeLevels(Bonfig):
         s = Store()

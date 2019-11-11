@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bonfig"
-version = "0.2.1"
+version = "0.2.2"
 description = "Don't write configurations, write class declarations."
 authors = ["0Hughman0 <rammers2@hotmail.co.uk>"]
 license = "MIT"
